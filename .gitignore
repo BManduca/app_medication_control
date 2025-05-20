@@ -12,9 +12,6 @@ __pycache__/
 *.sqlite3
 *.db
 
-# Migrations (caso deseje ignorar arquivos gerados)
-#migrations/
-
 # Arquivos de log
 *.log
 
