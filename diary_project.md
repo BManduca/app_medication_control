@@ -65,3 +65,29 @@ module.exports = {
 ```
 npx tailwindcss -i ./app/static/css/tailwind.css -o ./app/static/css/output.css --watch
 ```
+
+### Gerando e Aplicando script de migração
+
+1. Definindo FLASK_APP
+
+```
+export FLASK_APP=run.py
+```
+
+2. Inicializando o banco
+
+```
+flask db init
+```
+
+3. Gerando script de migração
+
+```
+flask db migrate -m "Aplicar sua mensagem aqui"
+```
+
+4. Aplicar a migração ao banco de dados
+
+```
+flask db upgrade
+```
