@@ -1,5 +1,41 @@
+# Ambientes virtuais
 venv/
-__pycache__/
-*.pyc
-*.db
 .env
+*.env
+
+# Bytecode do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Banco de dados local
+*.sqlite3
+*.db
+
+# Migrations (caso deseje ignorar arquivos gerados)
+#migrations/
+
+# Arquivos de log
+*.log
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# VSCode settings
+.vscode/
+
+# Arquivos de build do Tailwind ou outras ferramentas
+static/css/output.css
+static/css/*.map
+node_modules/
+dist/
+
+# Arquivos de cache do Flask
+instance/
+*.pid
+
+# Arquivos temporários
+*.bak
+*.swp
+*.tmp

@@ -1,4 +1,4 @@
-# Projeto - Aplicação Cadastro e Controle de Medicamento 💊
+# Projeto - Aplicação Web para Gerenciamento de Medicamento 💊
 
 - Sistema Web para gerenciar medicamentos de forma simples e segura, com login de usuários, cadastro, edição e exclusão de registros.
 
