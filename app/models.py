@@ -33,9 +33,9 @@ class Medication(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    description = db.Column(db.Text)
-    dosage = db.Column(db.String(50)) # Ex.: '500mg' ou '2 comprimidos'
-    hour = db.Column(db.String(50))
+    description = db.Column(db.Text, nullable=False)
+    dosage = db.Column(db.String(50), nullable=False) # Ex.: '500mg' ou '2 comprimidos'
+    hour = db.Column(db.String(50), nullable=True)
     stock = db.Column(db.Integer, default=0)
 
     registers = db.relationship('Register', backref='medication', lazy=True)
