@@ -13,17 +13,16 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
 
-    # criando relação entre o usuario e os seus registros de medicação
-    # lazy=True => registros carregados quando acessados
     registers = db.relationship('Register', backref='user', lazy=True)
+    medications = db.relationship('Medication', backref='user', lazy=True)
 
     def set_password(self, password):
-        self.password = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password, password)
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return f'<User {self.name}>'
@@ -32,26 +31,29 @@ class Medication(db.Model):
     __tablename__ = 'medications'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), name='fk_medications_user_id', nullable=False)
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
     dosage = db.Column(db.String(50), nullable=False) # Ex.: '500mg' ou '2 comprimidos'
-    hour = db.Column(db.String(50), nullable=True)
+    frequency = db.Column(db.String(50), nullable=True) # Ex.: 3x ao dia
+    hour = db.Column(db.Time, nullable=True)
     stock = db.Column(db.Integer, default=0)
+    instructions = db.Column(db.Text, nullable=True)  # pode ser texto longo e opcional
 
     registers = db.relationship('Register', backref='medication', lazy=True)
 
     def __repr__(self):
-        return f'<Medicamento {self.name}>'
+        return f'<Medication {self.name}>'
 
 class Register(db.Model):
     __tablename__ = 'registers'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), nullable=False)
+    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), name='fk_registers_medication_id', nullable=False)
     date_time = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    dosage = db.Column(db.String(50))
-    observation = db.Column(db.Text)
+    amount_administered = db.Column(db.String(50), nullable=True)
+    observation = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
-        return f'<Registro {self.id} - User {self.user_id} - Medicamento {self.medication_id}>'
+        return f'<Register {self.id} - User {self.user_id} - Medication {self.medication_id}>'
