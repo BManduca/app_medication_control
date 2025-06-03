@@ -1,42 +1,46 @@
-{% extends "base.html" %} {% block title %} Editar medicamento {% endblock %} {%
-block content %}
-<div class="max-w-5xl mx-auto mt-8">
-  <h2 class="text-2xl font-bold mb-6 text-center">Editar medicamento</h2>
-  <form method="POST">
+{% extends "base.html" %}
+{% block title %} Editar Medicamento {% endblock %}
+
+{% import 'partials/_form_field.html' as form_fields %}
+{% import 'partials/_buttons.html' as buttons %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded px-6 py-6 mt-10">
+  <h2 class="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-800 dark:text-gray-100">
+    <i data-lucide="pill" class="w-5 h-5" aria-hidden="true"></i>
+    <i data-lucide="edit" class="w-5 h-5" aria-hidden="true"></i>
+    Editar medicamento
+  </h2>
+
+  <!-- inclusão mensagens flash -->
+  {% include 'partials/_flash_messages.html' %}
+
+  <form method="POST" action="{{ url_for('medication.edit_medication', medication_id=medication.id) }}" novalidate>
     {{ form.hidden_tag() }}
 
-    <div class="mb-4">
-      {{ form.name.label(class="block font-medium") }} {{
-      form.name(class="w-full border rounded px-3 py-2") }}
-    </div>
+    {{ form_fields.render_field(form.name, label='Nome') }}
+    {{ form_fields.render_field(form.description, label='Descrição') }}
+    {{ form_fields.render_field(form.dosage, label='Dosagem') }}
+    {{ form_fields.render_field(form.frequency, label='Frequência', placeholder='Ex: 3x ao dia') }}
+    {{ form_fields.render_field(form.hour, label='Horário', placeholder='08:00, 12:00, 18:00') }}
+    {{ form_fields.render_field(form.stock, label='Estoque') }}
+    {{ form_fields.render_field(form.instructions, label='Instruções', placeholder='Observações importantes ou instruções') }}
 
-    <div class="mb-4">
-      {{ form.description.label(class="block font-medium") }} {{
-      form.description(class="w-full border rounded px-3 py-2") }}
-    </div>
+    <div class="flex justify-between items-center pt-6">
+      {{ buttons.render_button(
+        text='Cancelar',
+        href=url_for('medication.list_medications'),
+        icon='x',
+        classes='bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+          text-gray-700 dark:text-gray-100 font-semibold px-6 py-2 rounded'
+      ) }}
 
-    <div class="mb-4">
-      {{ form.dosage.label(class="block font-medium") }} {{
-      form.dosage(class="w-full border rounded px-3 py-2") }}
-    </div>
-
-    <div class="mb-4">
-      {{ form.hour.label(class="block font-medium") }} {{
-      form.hour(class="w-full border rounded px-3 py-2") }}
-    </div>
-
-    <div class="mb-4">
-      {{ form.stock.label(class="block font-medium") }} {{
-      form.stock(class="w-full border rounded px-3 py-2") }}
-    </div>
-
-    <div class="text-center">
-      <button
-        type="submit"
-        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-      >
-        Atualizar
-      </button>
+      {{ buttons.render_button(
+        text='Atualizar',
+        type='submit',
+        icon='refresh-cw',
+        classes='bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded'
+      ) }}
     </div>
   </form>
 </div>
