@@ -1,7 +1,10 @@
+from datetime import time
 from werkzeug.security import generate_password_hash
 import pytest
 from app.models import User
 from app import db
+
+# TESTES DE VALIDAÇÕES DE FOMULÁRIO DE MEDICAMENTOS
 
 @pytest.fixture
 def logged_in_user(client, app):
@@ -42,6 +45,7 @@ def test_add_medication_name_too_long(client, logged_in_user):
         'name': long_name,
         'description': 'Descrição teste',
         'dosage': '500mg',
+        "expiration_date": "25/09/2025",
         'hour': '08:00',
         'stock': 5,
         'instructions': 'Instruções'
@@ -57,6 +61,7 @@ def test_add_medication_negative_stock(client, logged_in_user):
         'name': 'TesteNegativo',
         'description': 'Descrição',
         'dosage': '500mg',
+        "expiration_date": "25/09/2025",
         'stock': -10
     }, follow_redirects=True)
 

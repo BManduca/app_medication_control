@@ -2,11 +2,12 @@ from werkzeug.security import generate_password_hash
 from app.models import User
 from app import db
 
+# TESTES DE AUTENTICAÇÃO
 
 def test_register_page(client):
     response = client.get('/auth/register')
     assert response.status_code == 200
-    assert b"Registrar" in response.data
+    assert b"Cadastrar" in response.data
 
 def test_login_page(client):
     response = client.get('/auth/login')
@@ -14,7 +15,7 @@ def test_login_page(client):
     assert b"Login" in response.data
 
 def test_logout_redirect(client):
-    response = client.get('/auth/logout', follow_redirects=True)
+    response = client.post('/auth/logout', follow_redirects=True)
     assert response.status_code == 200
     assert b"Login" in response.data or b"Bem-vindo" in response.data
 

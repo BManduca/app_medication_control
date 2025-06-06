@@ -2,6 +2,8 @@ from werkzeug.security import generate_password_hash
 from app.models import Medication, User
 from app import db
 
+# TESTE DE VALIDAÇÕES DAS FUNCIONALIDADES DOS MEDICAMENTOS
+
 def create_test_user(app):
     # cria um usuário de teste no banco, para teste em rotas protegidas
     with app.app_context():
@@ -45,6 +47,7 @@ def test_add_medication(client, app):
         "name": "TesteMed",
         "description": "Medicamento para teste",
         "dosage": "500mg",
+        "expiration_date": "25/09/2025",
         "frequency": "1x ao dia",
         "hour": "08:00",
         "stock": 10,
