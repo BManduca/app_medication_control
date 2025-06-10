@@ -58,6 +58,10 @@ def create_app(testing=False):
     @app.context_processor
     def inject_now():
         return {'now': datetime.now(timezone.utc)}
+    
+    from .error_handlers import init_error_handlers
+    # inicializando handlers de erro
+    init_error_handlers(app)
 
     return app
 

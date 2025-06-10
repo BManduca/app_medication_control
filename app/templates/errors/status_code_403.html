@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Acesso negado{% endblock %}
+
+{% import "partials/_buttons.html" as buttons %}
+
+{% block content %}
+<div class="p-6 text-center">
+    <h1 class="text-3xl font-bold text-red-500">403 - Acesso negado.</h1>
+    <p class="mt-4">Você não tem permissão para acessar essa página.</p>
+    {{ buttons.render_button(
+        text='Voltar para home',
+        href=url_for('main.home'),
+        icon='arros-left',
+        classes='mt-4 bg-indigo-600 text-white px-4 py-2 rounded'
+    ) }}
+</div>
+{% endblock %}

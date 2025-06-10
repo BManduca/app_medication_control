@@ -1,4 +1,5 @@
 from datetime import time, date
+from flask import abort
 from werkzeug.security import generate_password_hash
 import pytest
 from app.models import Medication, User
@@ -63,14 +64,16 @@ def test_edit_medication_of_other_user(client, app, logged_in_user):
             'description': 'description no novo medicamento',
             'dosage': '500mg',
             'frequency': '1x ao dia',
+            'expiration_date': '31/12/2025',
             'hour': '08:00',
             'stock': 10,
             'instructions': 'Instruções'
         }, follow_redirects=True)
 
-        assert response.status_code in (403, 404, 302) # aguardar bloqueio ou redirecionamento
+        # verificando se o usuário tem autorização
+        assert response.status_code == 403
         html = response.data.decode('utf-8')
-        assert 'não autorizado' in html.lower() or 'erro' in html.lower() or 'forbidden' in html.lower()
+        assert 'não tem permissão' in html.lower() or '403' in html
 
 def test_delete_medication_of_other_user(client, app, logged_in_user):
     with app.app_context():
@@ -101,9 +104,9 @@ def test_delete_medication_of_other_user(client, app, logged_in_user):
         # logged_in_user tenta deletar o medicamento do other_user
         response = client.post(f'/medications/delete/{medication.id}', follow_redirects=True)
 
-        assert response.status_code in (403, 404, 302)
+        assert response.status_code == 403
         html = response.data.decode('utf-8')
-        assert 'não autorizado' in html.lower() or 'erro' in html.lower() or 'forbidden' in html.lower()
+        assert 'não tem permissão' in html.lower() or '403' in html
 
 @pytest.mark.parametrize('url, method', [
     ('/medications/add', 'GET'),
@@ -118,3 +121,36 @@ def test_protected_routes_require_login(client, url, method):
         assert response.status_code == 200
         html = response.data.decode('utf-8')
         assert 'login' in html.lower() or 'bem-vindo' in html.lower()
+
+def test_error_403_page(client, app):
+    with app.app_context():
+        # criando rota fake, para forçar status_code 403
+        @app.route('/force-route-403')
+        def force_route_403():
+            abort(403)
+    
+    response = client.get('/force-route-403')
+    assert response.status_code == 403
+    html = response.data.decode('utf-8')
+    assert '403' in html or 'não tem permissão' in html.lower()
+
+def test_error_404_page(client):
+    response = client.get('/rota-inexistente')
+    assert response.status_code == 404
+    html = response.data.decode('utf-8')
+    assert '404' in html or 'não foi encontrada' in html.lower()
+
+def test_error_500_page(client, app):
+    # EVITA QUE O FLASK PROPAGUE A EXCEÇÃO REAL NO TESTE.
+    app.config["PROPAGATE_EXCEPTIONS"] = False
+
+    with app.app_context():
+        # criando rota fake para forçar status_code 500
+        @app.route('/force-route-500')
+        def force_route_500():
+            raise Exception('Erro interno de teste.')
+
+        response = client.get('/force-route-500')
+        assert response.status_code == 500
+        html = response.data.decode('utf-8')
+        assert 'Erro interno' in html or 'internal server error' in html.lower()
