@@ -15,12 +15,13 @@
   <!-- inclusão mensagens flash -->
   {% include 'partials/_flash_messages.html' %}
 
-  <form method="POST" action="{{ url_for('medication.edit_medication', medication_id=medication.id) }}" novalidate>
+  <form method="POST" action="{{ url_for('medication.edit_medication', med_id=medication.id) }}" novalidate>
     {{ form.hidden_tag() }}
 
     {{ form_fields.render_field(form.name, label='Nome') }}
     {{ form_fields.render_field(form.description, label='Descrição') }}
     {{ form_fields.render_field(form.dosage, label='Dosagem') }}
+    {{ form_fields.render_field(form.expiration_date, label='Data de validade', placeholder='DD/MM/AAAA') }}
     {{ form_fields.render_field(form.frequency, label='Frequência', placeholder='Ex: 3x ao dia') }}
     {{ form_fields.render_field(form.hour, label='Horário', placeholder='08:00, 12:00, 18:00') }}
     {{ form_fields.render_field(form.stock, label='Estoque') }}
@@ -35,12 +36,14 @@
           text-gray-700 dark:text-gray-100 font-semibold px-6 py-2 rounded'
       ) }}
 
-      {{ buttons.render_button(
-        text='Atualizar',
-        type='submit',
-        icon='refresh-cw',
-        classes='bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded'
-      ) }}
+      <div x-data="{ loading: false }">
+        {{ buttons.render_button(
+          text='Atualizar',
+          type='submit',
+          icon='refresh-cw',
+          classes='bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded'
+        ) }}
+      </div>
     </div>
   </form>
 </div>

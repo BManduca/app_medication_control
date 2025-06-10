@@ -21,8 +21,9 @@
     {{ form_fields.render_field(form.description, label='Descrição', placeholder='Descrição breve do medicamento') }}
     {{ form_fields.render_field(form.dosage, label='Dosagem', placeholder='Ex: 500mg ou 2 comprimidos') }}
     {{ form_fields.render_field(form.frequency, label='Frequência', placeholder='Ex: 3x ao dia') }}
-    {{ form_fields.render_field(form.hour, label='Horário', placeholder='08:00, 12:00, 18:00') }}
+    {{ form_fields.render_field(form.hour, label='Horário', placeholder='08:00') }}
     {{ form_fields.render_field(form.stock, label='Estoque', placeholder='Quantidade atual em estoque') }}
+    {{ form_fields.render_field(form.expiration_date, label='Data de validade', placeholder='DD/MM/AAAA') }}
     {{ form_fields.render_field(form.instructions, label='Instruções', placeholder='Observações importantes ou instruções') }}
 
     <div class="flex justify-between items-center pt-6">
@@ -35,12 +36,14 @@
           text-gray-700 dark:text-gray-100 font-semibold px-6 py-2 rounded'
       ) }}
 
-      {{ buttons.render_button(
-        text='Salvar',
-        icon='check-circle',
-        type='submit',
-        classes='bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded'
-      ) }}
+      <div x-data="{ loading: false }">
+        {{ buttons.render_button(
+          text='Salvar',
+          icon='check-circle',
+          type='submit',
+          classes='bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded'
+        ) }}
+      </div>
     </div>
   </form>
 </div>

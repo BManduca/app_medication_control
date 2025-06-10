@@ -11,13 +11,13 @@
   {% include 'partials/_flash_messages.html' %}
 
   <!-- CABEÇALHO -->
-  <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Histórico de Uso de Medicamentos</h1>
+  <div class="flex justify-between items-center mb-6 gap-2 sm:gap-4">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Medicamentos</h1>
     {{ buttons.render_button(
       text='Adicionar medicamento',
       href=url_for('medication.add_medication'),
       icon="plus-circle",
-      classes="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded shadow text-sm sm:text-base"
+      classes="w-full max-w-[14rem] sm:max-w-none sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded shadow text-xs sm:text-base"
     ) }}
   </div>
 
@@ -25,18 +25,23 @@
   <form
     method="GET"
     action="{{ url_for('medication.list_medications') }}"
-    class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+    class="mb-6 flex items-center gap-2 flex-nowrap"
   >
     {{ name_filter_form.hidden_tag() }}
-    {{ form_fields.render_field(name_filter_form.name, placeholder='Buscar por nome') }}
-    {{ form_fields.render_field(name_filter_form.date, placeholder='Data de uso') }}
+    {{ form_fields.render_field(
+        name_filter_form.name,
+        placeholder='Buscar por nome',
+        classes='w-full sm:w-64 md:w-80 border border-gray-500 dark:border-gray-300 rounded-md px-2 py-2 text-sm',
+        wrapper_classes=''
+      ) 
+    }}
 
-    <div class="sm:col-span-2 lg:col-span-1">
+    <div x-data="{ loading: false }">
       {{ buttons.render_button(
         text='Filtrar',
         type='submit',
         icon='filter',
-        classes="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow"
+        classes="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-2 rounded shadow text-sm mt-1"
       ) }}
     </div>
   </form>
@@ -95,6 +100,12 @@
           </div>
         </div>
 
+        {% if reg.expiration_date %}
+          <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+            <span class="font-medium">Validade:</span> {{ reg.expiration_date.strftime('%d/%m/%Y') }}
+          </div>
+        {% endif %}
+
         <!-- ACTIONS -->
         <div class="flex gap-2 mt-4">
           {{ buttons.render_button(
@@ -105,12 +116,14 @@
           ) }}
           <form action="{{ url_for('medication.delete_medication', med_id=reg.id) }}" 
             method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este medicamento?');">
-            {{ buttons.render_button(
-              text='Excluir',
-              type='submit',
-              icon='trash-2',
-              classes="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-            ) }}
+            <div x-data="{ loading: false }">
+              {{ buttons.render_button(
+                text='Excluir',
+                type='submit',
+                icon='trash-2',
+                classes="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm"
+              ) }}
+            </div>
           </form>
         </div>
       </div>
@@ -125,7 +138,7 @@
       {% if registers.has_prev %}
         {{ buttons.render_button(
           text='Anterior',
-          href=url_for('medication.list_medications', page=registers.prev_num, name=name_filter_form.name.data, date=name_filter_form.date.data),
+          href=url_for('medication.list_medications', page=registers.prev_num, name=name_filter_form.name.data),
           icon='arrow-left',
           classes="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
         ) }}
@@ -136,7 +149,7 @@
       {% if registers.has_next %}
         {{ buttons.render_button(
           text='Próxima',
-          href=url_for('medication.list_medications', page=registers.next_num, name=name_filter_form.name.data, date=name_filter_form.date.data),
+          href=url_for('medication.list_medications', page=registers.next_num, name=name_filter_form.name.data),
           icon='arrow-right',
           classes="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
         ) }}
