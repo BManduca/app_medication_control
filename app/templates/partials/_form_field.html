@@ -1,0 +1,78 @@
+{% macro render_field(field, label=None, type='text', placeholder=None, classes='', autocomplete=None, autofocus=False, wrapper_classes='mb-4') %}
+    {% set has_errors = field.errors | length > 0 %}
+    <div class="{{ wrapper_classes }}">
+        {% if label %}
+            <label for="{{ field.id }}" class="block mb-1 font-medium text-sm text-gray-700 dark:text-gray-200">
+                {{ label }}
+            </label>
+        {% endif %}
+
+        <!-- Classes padrão para o input -->
+        {% set input_classes =
+            'w-full px-3 py-2 mt-1 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ' ~
+            ( 'border-red-500 focus:ring-red-500' if has_errors else 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100' ) ~
+            ' ' ~ classes
+        %}
+
+        <!-- lógicas para geração de atributos -->
+        {% set real_placeholder = placeholder or '' %}
+        {% set autocomplete_value = autocomplete or field.name %}
+        {% set required_attr = 'required' if field.flags.required else None %}
+        {% set aria_invalid = "true" if has_errors else "false" %}
+        {% set aria_describedby = (field.id ~ '-error') if has_errors else None %}
+        {% set autofocus_attr = 'autofocus' if autofocus else None %}
+
+        {% if 'TextAreaField' in field.__class__.__name__ %}
+            {{ field(
+                class=input_classes,
+                placeholder=real_placeholder,
+                autocomplete=autocomplete_value,
+                autofocus=autofocus_attr,
+                aria_invalid=aria_invalid,
+                aria_describedby=aria_describedby,
+                required=required_attr
+            ) }}
+        <!-- campo de senha com toogle -->
+        {% elif type == 'password' %}
+            <div x-data="{ show: false }" class="relative">
+                {{ field(
+                    class=input_classes,
+                    type='password',
+                    placeholder=real_placeholder,
+                    autocomplete=autocomplete_value,
+                    autofocus=autofocus_attr,
+                    aria_invalid=aria_invalid,
+                    aria_describedby=aria_describedby,
+                    required=required_attr
+                ) }}
+                <button type="button"
+                        class="absolute right-3 top-2.5 text-gray-500 dark:text-gray-400 text-sm"
+                        @click="show = !show"
+                        x-init="$watch('show', value => $el.previousElementSibling.type = value ? 'text' : 'password')"
+                        x-text="show ? '🙈' : '👁️'"
+                        tabindex="-1"
+                        aria-label="Mostrar ou ocultar senha"
+                ></button>
+            </div>
+        {% else %}
+            {{ field(
+                class=input_classes,
+                type=type,
+                placeholder=real_placeholder,
+                autocomplete=autocomplete_value,
+                autofocus=autofocus_attr,
+                aria_invalid=aria_invalid,
+                aria_describedby=aria_describedby,
+                required=required_attr
+            ) }}
+        {% endif %}
+
+        {% if has_errors %}
+            <ul id="{{ field.id }}-error" class="text-sm text-red-600 mt-1 dark:text-red-400">
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endmacro %}

@@ -1,0 +1,90 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="fixed top-4 right-4 z-50 space-y-2" aria-live="polite">
+            {% for category, message in messages %}
+                <div
+                    role="alert"
+                    class="alert flex items-center justify-between gap-4 px-4 py-3 text-sm
+                    text-white rounded shadow-md transition duration-500 ease-in-out transform
+                    {% if category == 'success' %} bg-green-500
+                    {% elif category in ['danger', 'error'] %} bg-red-500
+                    {% elif category == 'warning' %} bg-yellow-500 
+                    {% else %} bg-blue-500 {% endif %}"
+                >
+
+                    <div class="flex items-center gap-2">
+                        {% if category == 'success' %}
+                            <!-- success icon -->
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 13l4 4L19 7" />
+                            </svg>
+                        {% elif category in ['danger', 'error'] %}
+                            <!-- error icon -->
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728" />
+                            </svg>
+                        {% elif category == 'warning' %}
+                            <!-- warning icon -->
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        {% else %}
+                            <!-- info icon -->
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+
+                    <!-- buttton close message -->
+                    <button class="close-alert text-white hover:text-gray-200 focus:outline-none" aria-label="Fechar alerta">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <style>
+            .icon {
+                width: 1.25rem; /* w-5 */
+                height: 1.25rem; /* h-5 */
+                color: white; /* text-white */
+            }
+        </style>
+
+        <script>
+            // Fechar alerta manualmente ao clicar no 'x'
+            document.querySelectorAll('.close-alert').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const alert = btn.closest('.alert');
+                    if (alert) {
+                        alert.classList.add('opacity-0', '-translate-y-3');
+                        setTimeout(() => alert.remove(), 500);
+                    }
+                })
+            })
+
+            // alerta desaparece após 5 segundos
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(el => {
+                    if (el) {
+                        el.classList.add('opacity-0', '-translate-y-3');
+                        setTimeout(() => el.remove(), 500);
+                    }
+                });
+            }, 5000);
+        </script>
+    {% endif %}
+{% endwith %}
