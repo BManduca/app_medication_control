@@ -53,7 +53,6 @@ def test_add_medication_name_too_long(client, logged_in_user):
 
     assert response.status_code == 200
     html = response.data.decode('utf-8')
-    print(html)
     assert 'O nome deve ter no máximo 120 caracteres.' in html
 
 def test_add_medication_negative_stock(client, logged_in_user):
