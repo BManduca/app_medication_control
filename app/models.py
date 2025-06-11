@@ -35,6 +35,7 @@ class Medication(db.Model):
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
     dosage = db.Column(db.String(50), nullable=False) # Ex.: '500mg' ou '2 comprimidos'
+    expiration_date = db.Column(db.Date, nullable=False)
     frequency = db.Column(db.String(50), nullable=True) # Ex.: 3x ao dia
     hour = db.Column(db.Time, nullable=True)
     stock = db.Column(db.Integer, default=0)
