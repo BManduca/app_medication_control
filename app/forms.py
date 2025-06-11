@@ -1,6 +1,7 @@
+from datetime import date
 from flask_wtf import FlaskForm
 from wtforms import DateField, StringField, IntegerField, TextAreaField, SubmitField, PasswordField, TimeField
-from wtforms.validators import DataRequired, Length, NumberRange, Optional, Email, EqualTo
+from wtforms.validators import DataRequired, Length, NumberRange, Optional, Email, EqualTo, ValidationError
 
 class MedicationForm(FlaskForm):
     name = StringField('Nome', validators=[
@@ -14,6 +15,14 @@ class MedicationForm(FlaskForm):
         DataRequired(message='A dosagem é obrigatória.'),
         Length(max=100, message='A dosagem deve ter no máximo 100 caracteres.')
     ])
+    expiration_date = DateField('Data de validade',  format='%d/%m/%Y', validators=[
+        DataRequired(message='A data de validade é obrigatória.')
+    ])
+
+    def validate_expiration_date(self, field: DateField) -> None:
+        if field.data and field.data < date.today():
+            raise ValidationError('A data de validade não pode ser anterior a data atual. Verifique se o medicamento não está vencido.')
+
     frequency = StringField('Frequência', validators=[
         Length(max=100, message='A frequência deve ter no máximo 100 caracteres.')
     ])
@@ -73,11 +82,15 @@ class RegisterForm(FlaskForm):
     ])
     submit = SubmitField("Cadastrar")
 
-class FilterHistoryForm(FlaskForm):
+class FilterDateForm(FlaskForm):
     start_date = DateField('Data inicial', format='%Y-%m-%d', validators=[Optional()])
     end_date = DateField('Data final', format='%Y-%m-%d', validators=[Optional()])
     submit = SubmitField('Filtrar')
 
 class NameFilterForm(FlaskForm):
     name = StringField('Nome', validators=[Optional()])
-    date = DateField('Data', validators=[Optional()])
+
+class EditRegisterForm(FlaskForm):
+    amount_administered = StringField('Quantidade administrada', validators=[Optional()])
+    observation = TextAreaField('Observação', validators=[Optional()])
+    submit = SubmitField('Salvar')
