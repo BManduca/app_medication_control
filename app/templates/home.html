@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Bem-vindo | AppMedicationControl{% endblock %}
+
+{% import 'partials/_buttons.html' as buttons %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto px-4 py-16 text-center">
+    <!-- LOGO SIMBOLICA DA APLICAÇÃO -->
+     <!-- O arquivo SVG esteja em static/img/logo-symbol.svg -->
+    <!-- <img 
+        src="{{ url_for('static', filename='img/logo-symbol.svg') }}"
+        alt="Logo AppMedicationControl"
+        class="w-32 mx-auto mb-6"
+    /> -->
+
+    <h1 class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-4">
+        Bem-vindo ao AppMedicationControl
+    </h1>
+
+    <p class="text-lg text-gray-700 dark:text-gray-300 mb-8">
+        Gerencie seus medicamentos, controle seu estoque e registre o uso diário com facilidade.
+    </p>
+
+    <div class="flex justify-center gap-4 mb-10">
+        {{ buttons.render_button(
+            text='Entrar',
+            href=url_for('auth.login'),
+            icon='log-in',
+            classes='bg-blue-600 hover:bg-blue-700 hover:shadow-lg text-white px-6 py-3 rounded-lg text-lg transition'
+        ) }}
+
+        {{ buttons.render_button(
+            text='Criar conta',
+            href=url_for('auth.register'),
+            icon='user-plus',
+            classes='bg-gray-200 dark:bg-gray-700 hover:shadow-lg text-gray-800 
+                dark:text-white px-6 py-3 rounded-lg text-lg transition'
+        ) }}
+    </div>
+
+    <!-- Depoimento -->
+    {% set quote = 'Desde que comecei a usar o AppMedicationControl, 
+        nunca mais perdi o horário dos meus medicamentos. É simples, rápido e fácil.' %}
+    {% set author = 'Maria Silva' %}
+    {% include 'components/testimonial.html' %}
+
+</section>
+{% endblock %}

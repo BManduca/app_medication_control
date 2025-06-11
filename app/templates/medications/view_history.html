@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Histórico de Uso dos Medicamentos{% endblock %}
+
+{% import 'partials/_form_field.html' as form_fields %}
+{% import 'partials/_buttons.html' as buttons %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+
+    <!-- inclusão mensagens flash -->
+    {% include 'partials/_flash_messages.html' %}
+
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Histórico de Uso</h2>
+
+    <!-- Formulário de filtro por período e button de exportação CSV -->
+    <form method="GET" class="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div class="flex flex-col md:flex-row gap-4 items-end flex-wrap">
+            <div class="w-full md:w-auto">
+                {{ form_fields.render_field(form.start_date, label='Data inicial', type='date', wrapper_classes='') }}
+            </div>
+            <div class="w-full md:w-auto">
+                {{ form_fields.render_field(form.end_date, label='Data final', type='date', wrapper_classes='') }}
+            </div>
+            <div class="w-full md:w-auto">
+                <label for="medication" class="block mb-1 text-gray-700 dark:text-gray-300 font-semibold">Medicamento</label>
+                <select
+                    name="medication"
+                    id="medication"
+                    class="w-full md:w-auto rounded border border-gray-400 px-3 py-2 focus:outline-none
+                        focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200"
+                >
+                    <option value="">Todos</option>
+                    {% for med in medications %}
+                        <option value="{{ med.id }}" {% if request.args.get('medication', '') == med.id|string %}selected{% endif %}>{{ med.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Botões para exportar em formato CSV -->
+            <div class="flex flex-col md:flex-row gap-2 md:gap-4 self-end" x-data="{ loading: false }">
+                {{ buttons.render_button(
+                    text='Filtrar',
+                    type='submit',
+                    icon='filter',
+                    classes="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-2xl shadow"
+                ) }}
+
+                {% set start_date_str = form.start_date.data.strftime('%Y-%m-%d') if form.start_date.data else '' %}
+                {% set end_date_str = form.end_date.data.strftime('%Y-%m-%d') if form.end_date.data else '' %}
+                {{ buttons.render_button(
+                    text='Exportar CSV',
+                    href=url_for('medication.export_history_csv', start_date=start_date_str, end_date=end_date_str),
+                    icon='file-text',
+                    classes='bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-2xl shadow'
+                ) }}
+            </div>
+        </div>
+
+        
+    </form>
+
+    {% if registers %}
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-200 text-gray-800 dark:text-gray-200">
+                <thead>
+                    <tr class="bg-gray-100 dark:bg-gray-700">
+                        <th class="border border-gray-300 px-4 py-2 text-left">Data e Hora</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Medicamento</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Quantidade Administrada</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Observação</th>
+                        <th class="border border-gray-300 px-4 py-2 text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in registers %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="border border-gray-300 px-4 py-2">
+                            {{ reg.date_time.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            {{ reg.medication.name }}
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            {{ reg.amount_administered or reg.dosage }}
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            {{ reg.observation or '-' }}
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <div class="flex gap-2">
+                                {{ buttons.render_button(
+                                    text='Editar',
+                                    href=url_for('medication.edit_register', reg_id=reg.id),
+                                    icon='edit',
+                                    classes='bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-sm'
+                                ) }}
+                                <form
+                                    action="{{ url_for('medication.delete_register', reg_id=reg.id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Tem certeza que deseja excluir esse registro?');"
+                                >
+                                    <div x-data="{ loading: false }">
+                                        {{ buttons.render_button(
+                                            text='Excluir',
+                                            type='submit',
+                                            icon='trash-2',
+                                            classes='bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm'
+                                        ) }}
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if pagination %}
+        <div class="mt-4 flex justify-center space-x-2">
+            {% if pagination.has_prev %}
+                {{ buttons.render_button(
+                    text='Anterior',
+                    href=url_for('medication.view_history', page=pagination.prev_num),
+                    icon='arrow-left',
+                    classes='px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700'
+                ) }}
+            {% endif %}
+            {% if pagination.has_next %}
+                {{ buttons.render_button(
+                    text='Próximo',
+                    href=url_for('medication.view_history', page=pagination.next_num),
+                    icon='arrow-right',
+                    classes='px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700'
+                ) }}
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="text-gray-700 dark:text-gray-300">Nenhum registro de uso encontrado.</p>
+    {% endif %}
+
+    <div class="mt-6">
+        {{ buttons.render_button(
+            text='Voltar ao dashboard',
+            href=url_for('user_dashboard.dashboard'),
+            icon='arrow-left',
+            classes='text-indigo-600 hover:underline dark:text-indigo-400'
+        ) }}
+    </div>
+</div>
+{% endblock %}

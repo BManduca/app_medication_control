@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Registros Recentes{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+  <h2 class="text-2xl font-bold mb-6 text-center">Registros Recentes</h2>
+
+  <ul class="space-y-4">
+    <!-- MOCK DATA -->
+    <li class="bg-gray-100 p-4 rounded-xl shadow-sm">
+      <strong>Paracetamol</strong> - 500mg administrado em 20/05/2025 08:00
+      <div class="text-sm text-gray-600 mt-1">Obs: Tomado em jejum</div>
+    </li>
+    <li class="bg-gray-100 p-4 rounded-xl shadow-sm">
+      <strong>Ibuprofeno</strong> - 200mg administrado em 19/05/2025 21:00
+    </li>
+    <li class="bg-gray-100 p-4 rounded-xl shadow-sm">
+      <strong>Amoxicilina</strong> - 875mg administrado em 19/05/2025 13:00
+      <div class="text-sm text-gray-600 mt-1">Obs: Tomado após almoço</div>
+    </li>
+  </ul>
+
+  <!-- Paginação mock -->
+  <div class="flex justify-center mt-6 space-x-2">
+    <a
+      href="#"
+      class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+      >1</a
+    >
+    <a
+      href="#"
+      class="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+      >2</a
+    >
+    <a
+      href="#"
+      class="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+      >3</a
+    >
+  </div>
+</div>
+{% endblock %}

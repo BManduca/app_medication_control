@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
@@ -6,23 +6,233 @@
     <title>{% block title %}Controle de Medicamentos{% endblock %}</title>
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='../static/css/output.css') }}"
+      href="{{ url_for('static', filename='css/output.css') }}"
     />
+
+    <style>
+      .dark input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
+    </style>
+
+    <!-- Alpine.js -->
+     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
   </head>
-  <body
-    class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen"
-  >
-    <div class="w-full max-w-md px-4">
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %}
-      <div class="space-y-2 mb-6">
-        <div
-          class="p-3 text-sm text-white rounded shadow bg-{{ 'red' if category == 'danger' else 'green' if category == 'success' else 'yellow' }}-500"
-        >
-          {{ message }}
+  <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-white dark:bg-gray-800 shadow" x-data="{ open: false }">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        
+        <!-- Mobile toogle -->
+        <div class="md:hidden order-1">
+          <button @click="open = !open" class="cursor-pointer">
+            <svg
+              class="w-6 h-6 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
+
+        <a
+          href="{{ url_for('user_dashboard.dashboard') }}"
+          class="text-xl font-bold text-blue-600 dark:text-blue-400 order-2 
+            w-full text-center md:order-1 md:w-auto md:text-left"
+        >
+          AppMedicationControl
+        </a>
+
+        <!-- links desktop -->
+        <div class="hidden md:flex items-center space-x-4 order-3">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('medication.list_medications') }}" 
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+              Medicamentos
+            </a>
+            <a href="{{ url_for('medication.add_medication') }}"
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+              Adicionar medicamento
+            </a>
+            <a href="{{ url_for('medication.view_history') }}"
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+              Histórico
+            </a>
+            <form method="POST" action="{{ url_for('auth.logout') }}">
+              <button type="submit" class="text-red-600 hover:underline">
+                Sair
+              </button>
+            </form>
+            <!-- <span class="text-sm text-gray-500 dark:text-gray-400">
+              Olá, {{ current_user.name }}
+            </span> -->
+          {% else %}
+          <ul class="flex items-center space-x-4">
+            <li>
+              <a href="{{ url_for('main.home') }}"
+                class="font-serif font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                Início
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('auth.login') }}"
+                class="font-serif font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                Login
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('auth.register') }}"
+                class="font-serif font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                Cadastrar
+              </a>
+            </li>
+          </ul>
+          {% endif %}
+        </div>
+
+        <!-- BOTÃO DE ALTERNÂNCIA DE TEMA -->
+        <button onclick="toggleDarkMode()"
+        class="ml-4 bg-gray-200 dark:bg-gray-700 text-gray-800
+        dark:text-white px-4 py-2 rounded flex items-center gap-2 order-3 md:order-4 text-xs"
+        >
+          <i data-lucide="moon-star" class="w-4 h-4 dark:hidden"></i>
+          <!-- <span class="hidden dark:inline">☀️ </span> -->
+          <i data-lucide="sun" class="text-yellow-300 w-4 h-4 hidden dark:inline"></i>
+          <!-- <span class="dark:hidden">🌙</span>
+          <span class="hidden dark:inline">☀️ </span> -->
+        </button>
+
       </div>
-      {% endif %} {% endwith %} {% block content %}{% endblock %}
-    </div>
+
+      <!-- links mobile -->
+
+      <!-- 
+          transições no Alpine.js
+          enter — classes de transição para a animação de entrada.
+          enter-start — estado inicial antes da animação começar.
+          enter-end — estado final quando a animação termina.
+          leave — classes de transição para a animação de saída.
+          leave-start — estado inicial antes da animação de saída.
+          leave-end — estado final quando a animação de saída termina.
+      -->
+
+      <div
+        x-show="open"
+        x-transition:enter="transition ease-out duration-300" 
+        x-transition:enter-start="opacity-0 -translate-y-4"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-4"
+        class="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow z-50 
+          flex flex-col items-center justify-center text-center"
+      >
+        <!-- button 'X' para fechar menu -->
+        <button
+          @click="open = false"
+          class="absolute top-2 right-4 text-gray-800 dark:text-gray-200 hover:text-red-600 transition"
+          aria-label="Fechar menu"
+        >
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('medication.list_medications') }}"
+            class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+            Medicamentos
+          </a>
+          <a href="{{ url_for('medication.add_medication') }}" 
+            class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+            Adicionar medicamento
+          </a>
+          <a href="{{ url_for('medication.view_history') }}"
+            class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+            Histórico
+          </a>
+          <form action="{{ url_for('auth.logout') }}" method="POST">
+            <button
+              type="submit"
+              class="text-red-600 hover:underline py-2 block w-full text-left"
+            >
+              Sair
+            </button>
+          </form>
+        {% else %}
+          <ul class="space-y-2">
+            <li>
+              <a href="{{ url_for('main.home') }}"
+                class="font-serif font-semibold block py-2 text-gray-700 dark:text-gray-300
+                  hover:text-blue-600 dark:hover:text-blue-400">
+                Início
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('auth.login') }}"
+                class="font-serif font-semibold block py-2 text-gray-700 dark:text-gray-300
+                  hover:text-blue-600 dark:hover:text-blue-400">
+                Login
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('auth.register') }}"
+                class="font-serif font-semibold block py-2 text-gray-700 dark:text-gray-300
+                  hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Cadastrar
+              </a>
+            </li>
+          </ul>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="flex-grow">
+
+      <!-- Flash messages -->
+      {% include 'partials/_flash_messages.html' %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-white dark:bg-gray-800 border-t mt-auto py-4 
+      text-center text-sm text-gray-500 dark:text-gray-400">
+      &copy; {{ now.year }} AppMedicationControl. Todos os direitos
+      reservados.
+    </footer>
+
+    <!-- LUCIDE ICONS -->
+     <script src="https://unpkg.com/lucide@latest"></script>
+     <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+      })
+     </script>
+
+     <script>
+      // Verifica se aplica o tema salvo no localStorage
+      if (localStorage.getItem('theme') == 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+
+      function toggleDarkMode() {
+        const html = document.documentElement;
+        if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          localStorage.setItem('theme', 'light')
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('theme', 'dark')
+        }
+        lucide.createIcons(); // atualizando os ícones para troca darkmode
+      }
+     </script>
   </body>
 </html>

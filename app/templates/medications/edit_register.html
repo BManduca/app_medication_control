@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Editar registro{% endblock %}
+
+{% import "partials/_form_field.html" as form_fields %}
+{% import "partials/_buttons.html" as buttons %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Editar registros</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-4">
+            {{ form_fields.render_field( form.amount_administered, label='Quantidade administrada') }}
+        </div>
+
+        <div class="mb-4">
+            {{ form_fields.render_field( form.observation, label='Observação' ) }}
+        </div>
+
+        <div class="flex justify-end" x-data="{ loading: false }">
+            {{ buttons.render_button(
+                text='Salvar alterações',
+                type='submit',
+                icon='save',
+                classes='bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-2xl shadow'
+            ) }}
+        </div>
+    </form>
+    <div class="mt-4">
+        {{ buttons.render_button(
+            text='Cancelar',
+            href=url_for('medication.recent_registers'),
+            icon='arrow-left',
+            classes='text-indigo-600 hover:underline dark:text-indigo-400'
+        ) }}
+    </div>
+</div>
+{% endblock %}

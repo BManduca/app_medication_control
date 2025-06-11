@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+{% import 'partials/_form_field.html' as form_fields %}
+{% import 'partials/_buttons.html' as buttons %}
+
+  <div x-data="{ loading: false }" class="max-w-md sm:max-w-lg md:max-w-xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded px-6 sm:px-8 py-6 mt-10 transition-colors">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Login</h1>
+
+    {% include 'partials/_flash_messages.html' %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}" @submit="loading = true" novalidate>
+      {{ form.hidden_tag() }}
+
+      {{ form_fields.render_field(
+        form.email,
+        label='Email',
+        type='email',
+        placeholder='Digite seu e-mail',
+        autocomplete='email',
+        autofocus=true
+      ) }}
+
+      <!-- Campo de senha com toogle -->
+      {{ form_fields.render_field(
+        form.password,
+        label='Senha',
+        type='password',
+        placeholder='Digite sua senha',
+        autocomplete='current-password'
+      ) }}
+
+      <!-- Button Login -->
+      {{ buttons.render_button(
+        text='Login',
+        icon='log-in',
+        type='submit',
+        loading=True,
+        loading_text='Entrando..',
+        classes='w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700
+          transition-colors duration-200 font-semibold text-sm sm:text-base
+          focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500'
+      ) }}
+    </form>
+
+    <div class="flex justify-center items-center gap-4 text-sm mt-4 text-center text-gray-700 dark:text-gray-300">
+      <span>Não tem conta?</span>
+      {{ buttons.render_button(
+        text='Cadastre-se',
+        href=url_for('auth.register'),
+        icon='user-plus',
+        classes='border border-blue-600 text-blue-600 hover:bg-blue-600
+          hover:text-white px-4 py-2 rounded font-semibold text-sm sm:text-base
+          focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500
+          dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white'
+      ) }}
+    </div>
+  </div>
+{% endblock %}

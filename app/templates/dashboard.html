@@ -1,36 +1,132 @@
-{% extends "base.html" %} {% block title %} Dashboard {% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %} Dashboard {% endblock %}
 
-<div
-  class="max-w-md sm:max-w-lg md:max-w-2xl mx-auto bg-white shadow-md rounded px-6 sm:px-8 py-8 text-center mt-10"
->
-  <h1 class="text-2xl sm:text-3xl font-bold mb-4">
-    Bem-vindo, {{ current_user.name }}
+{% import "partials/_buttons.html" as buttons %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-10 px-4">
+  <h1 class="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-gray-100">
+    Bem-vindo, {{ current_user.name }}!
   </h1>
 
-  <p class="mb-6 text-gray-700 text-sm sm:text-base">
-    Aqui está o seu painel de controle de medicamentos.
-  </p>
+  {% if reminders %}
+    <div class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500
+      dark:border-yellow-400 text-yellow-700 dark:text-yellow-300 p-4 mb-6" role="alert">
+      <p class="font-bold">Lembrete de medicamentos</p>
+      <ul class="list-disc list-inside">
+        {% for med in reminders %}
+          <li>{{ med.name }} - horário: {{ med.hour.strftime('%H:%M') }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
 
-  <div class="flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-6">
-    <a
-      href="{{ url_for('register_medication') }}"
-      class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-sm sm:text-base"
-    >
-      Registrar medicação
-    </a>
-    <a
-      href="{{ url_for('view_history') }}"
-      class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 text-sm sm:text-base"
-    >
-      Ver histórico de registros
-    </a>
-    <a
-      href="{{ url_for('auth.logout') }}"
-      class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 text-sm sm:text-base"
-    >
-      Sair da conta
-    </a>
+  {% if expiring_medicines %}
+    <div 
+      class="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-400 
+        text-red-700 dark:text-red-300 p-4 mb-6 rounded-lg shadow" role="alert">
+        <p class="font-bold mb-2">Medicamentos prestes a vencer (próximos 30dias)</p>
+        <ul class="list-disc list-inside">
+          {% for med in expiring_medicines %}
+            {% set days_left = (med.expiration_date - current_date).days %}
+            <li>
+              <strong>{{ med.name }}</strong> - vence em {{ days_left }} dia{{ 's' if days_left > 1 else '' }} ({{ med.expiration_date.strftime('%d/%m/%Y') }})
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+  {% endif %}
+
+  <!-- Flash messages -->
+  {% include "partials/_flash_messages.html" %}
+
+  <!-- Estatísticas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 m-10">
+    <div class="bg-blue-200 dark:bg-blue-800 p-6 rounded-xl shadow text-center">
+      <h2 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Total de medicamentos</h2>
+      <p class="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-2">
+        {{ total_medications }}
+      </p>
+    </div>
+    <div class="bg-green-200 dark:bg-green-800 p-6 rounded-xl shadow text-center">
+      <h2 class="text-lg font-semibold text-green-800 dark:text-green-200">
+        Total de registros de uso
+      </h2>
+      <p class="text-3xl font-bold text-green-900 dark:text-green-100 mt-2">
+        {{ total_registers }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Ações principais -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Medicamentos</h2>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">
+        Visualize, edite ou remova seus medicamentos.
+      </p>
+      {{ buttons.render_button(
+        text='Ver lista',
+        href=url_for('medication.list_medications'),
+        icon='list',
+        classes="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+      ) }}
+    </div>
+    <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Adicionar medicamento</h2>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">
+        Cadastre novos medicamentos para controle.
+      </p>
+      {{ buttons.render_button(
+        text='Adicionar',
+        href=url_for('medication.add_medication'),
+        icon='plus-circle',
+        classes="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      ) }}
+    </div>
+    <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Últimos registros</h2>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">
+        Veja os medicamentos utilizados recentemente.
+      </p>
+      {{ buttons.render_button(
+        text='Acessar registros',
+        href=url_for('medication.recent_registers'),
+        icon='clock',
+        classes="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+      ) }}
+    </div>
+    <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Registrar uso</h2>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">
+        Realize o registro de um medicamento específico.
+      </p>
+      <form
+        action="{{ url_for('medication.register_use') }}"
+        method="GET"
+        class="flex flex-col gap-4"
+      >
+        <label for="med_id" class="text-gray-700 dark:text-gray-300 font-semibold">Medicamento</label>
+        <select name="med_id"
+          id="med_id"
+          class="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 bg-white
+            dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2
+            focus:ring-purple-500"
+        >
+          {% for med in medications %}
+            <option value="{{ med.id }}">{{ med.name }}</option>
+          {% endfor %}
+        </select>
+        <div x-data="{ loading: false }">
+          {{ buttons.render_button(
+            text='Registrar uso',
+            type='submit',
+            icon='edit-3',
+            classes="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
+          ) }}
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}

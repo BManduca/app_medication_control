@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %} Registros recentes {% endblock %}
+
+{% import "partials/_buttons.html" as buttons %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+
+    <!-- mensagens flash -->
+     {% include "partials/_flash_messages.html" %}
+
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Registros recentes</h2>
+
+    {% if recent_registers %}
+        <div class="space-y-4">
+            {% for reg in recent_registers %}
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-xl shadow-sm">
+                    <div class="flex flex-wrap justify-between items-center">
+                        <div class="break-words">
+                            <strong>{{ reg.medication.name }}</strong> - {{ reg.amount_administered or reg.medication.dosage }}
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">
+                            {{ reg.date_time.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                    </div>
+                    {% if reg.observation %}
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-words">
+                            Obs: {{ reg.observation }}
+                        </div>
+                    {% endif %}
+
+                     <!-- ACTIONS for register -->
+                    <div class="flex gap-2 mt-2">
+                        {{ buttons.render_button(
+                            text='Editar',
+                            href=url_for('medication.edit_register', reg_id=reg.id),
+                            icon='edit',
+                            classes='bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-sm'
+                        ) }}
+
+                        <!-- formulário para exclusão do registro -->
+                        <form
+                            action="{{ url_for('medication.delete_register', reg_id=reg.id) }}"
+                            method="POST"
+                            onsubmit="return confirm('Tem certeza que deseja excluir esse registro?');"
+                        >
+                            <div x-data="{ loading: false }">
+                                {{ buttons.render_button(
+                                    text='Excluir',
+                                    type='submit',
+                                    icon='trash-2',
+                                    classes='bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm'
+                                ) }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginação -->
+        {% if pagination %}
+            <div class="mt-4 flex justify-center space-x-2">
+                {% if pagination.has_prev %}
+                    {{ buttons.render_button(
+                        text='Anterior',
+                        href=url_for(
+                            'medication.recent_registers',
+                            page=pagination.prev_num
+                        ),
+                        icon='arrow-left',
+                        classes='px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700'
+                    ) }}
+                {% endif %}
+                {% if pagination.has_next %}
+                    {{ buttons.render_button(
+                        text='Próximo',
+                        href=url_for(
+                            'medication.recent_registers',
+                            page=pagination.next_num
+                        ),
+                        icon='arrow-right',
+                        classes='px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700'
+                    ) }}
+                {% endif %}
+            </div>
+        {% endif %}
+        {% else %}
+            <p class="text-gray-700 dark:text-gray-300">Nenhum registro recente encontrado</p>
+    {% endif %}
+
+    <div class="mt-6">
+        {{ buttons.render_button(
+            text='Voltar ao dashboard',
+            href=url_for('user_dashboard.dashboard'),
+            icon='arrow-left',
+            classes='text-indigo-600 hover:underline dark:text-indigo-400'
+        ) }}
+    </div>
+</div>
+
+{% endblock %}
