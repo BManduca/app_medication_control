@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import or_
@@ -42,6 +42,18 @@ def dashboard():
                 Medication.hour <= in_one_hour
             )
         ).all()
+
+    # medicamentos prestes a vencer próximos 30 dias
+    due_date = date.today() + timedelta(days=30)
+    expiring_medicines = Medication.query.filter(
+        Medication.user_id == current_user.id,
+        Medication.expiration_date.isnot(None),
+        Medication.expiration_date <= due_date,
+        Medication.expiration_date >= date.today()
+    ).order_by(Medication.expiration_date).all()
+
+    # Coletando todos os medicamentos do usuário para apresentar na seção 'Registrar uso'
+    medications = Medication.query.filter_by(user_id=current_user.id).all()
     
     return render_template(
         'dashboard.html',
@@ -49,5 +61,8 @@ def dashboard():
         total_medications=total_medications,
         total_registers=total_registers,
         recent_registers=recent_registers,
-        reminders=reminders
+        reminders=reminders,
+        expiring_medicines=expiring_medicines,
+        medications=medications,
+        current_date=date.today() # designado para o template calcular os dias restantes
     )
