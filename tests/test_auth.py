@@ -46,3 +46,50 @@ def test_dashboard_requires_login(client):
 
     # aguarda ser redirecionado para o login
     assert b'Login' in response.data or b'Bem-vindo' in response.data
+
+def test_register_user(client, app):
+    response = client.post('/auth/register', data={
+        'username': 'New User',
+        'email': 'new@example.com',
+        'password': '123456',
+        'confirm_password': '123456'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    with app.app_context():
+        user = User.query.filter_by(email='new@example.com').first()
+        assert user is not None
+        assert user.name == 'New User'
+
+def test_login_success(client, app):
+    with app.app_context():
+        user = User(name='Login Success', email='loginsuccess@example.com')
+        user.set_password('123456')
+        db.session.add(user)
+        db.session.commit()
+
+    response = client.post('/auth/login', data={
+        'email': 'loginsuccess@example.com',
+        'password': '12345'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Login' in response.data
+
+def test_duplicate_email_register_fails(client, app):
+    with app.app_context():
+        user = User(name='Dup user', email='dup@example.com')
+        user.set_password('123456')
+        db.session.add(user)
+        db.session.commit()
+
+    response = client.post('/auth/register', data={
+        'username': 'Another Dup',
+        'email': 'dup@example.com',
+        'password': '123456',
+        'confirm_password': '123456'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'Cadastrar' in html and 'Faça login ou use outro email' in html
