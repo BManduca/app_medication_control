@@ -4,8 +4,8 @@ from datetime import date, datetime, timezone
 from flask import Blueprint, abort, render_template, redirect, url_for, flash, request, Response
 from flask_login import login_required, current_user
 from app import db
-from app.models import Medication, Register
-from app.forms import EditRegisterForm, FilterDateForm, MedicationForm, NameFilterForm, RegisterUseMedicationForm
+from app.models import Medication, MedicationReminder, Register
+from app.forms import EditRegisterForm, FilterDateForm, MedicationForm, NameFilterForm, RegisterUseMedicationForm, ReminderForm
 
 medication_bp = Blueprint('medication', __name__)
 
@@ -383,6 +383,82 @@ def delete_register(reg_id):
 
     flash('Registro excluído com sucesso!', 'info')
     return redirect(url_for('medication.recent_registers'))
+
+@medication_bp.route('/reminders', methods=['GET', 'POST'])
+@login_required
+def reminders():
+    # listando todos os lembretes
+    reminders_medications = MedicationReminder.query.filter_by(user_id=current_user.id).order_by(MedicationReminder.time).all()
+    return render_template('medications/reminders/reminders.html', reminders=reminders_medications)
+
+@medication_bp.route('/reminders/add', methods=['GET', 'POST'])
+@login_required
+def add_reminder():
+    form = ReminderForm()
+    form.medication_id.choices = [
+        (med.id, med.name) for med in Medication.query.filter_by(user_id=current_user.id).order_by(Medication.name)
+    ]
+
+    if form.validate_on_submit():
+        reminder = MedicationReminder(
+            user_id=current_user.id,
+            medication_id=form.medication_id.data,
+            time=form.time.data,
+            frequency=form.frequency.data,
+            active=form.active.data
+        )
+
+        db.session.add(reminder)
+        db.session.commit()
+        flash('Lembre criado com sucesso!', 'success')
+        return redirect(url_for('medication.reminders'))
+    
+    return render_template(
+        'medications/reminders/reminders_add.html',
+        form=form,
+        actions_url=url_for('medication.add_reminder'),
+        button_text='Criar lembrete'
+    )
+
+# rota para edição de lembretes
+@medication_bp.route('/reminders/<int:reminder_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_reminder(reminder_id):
+    reminder = MedicationReminder.query.get_or_404(reminder_id)
+
+    if reminder.user_id != current_user.id:
+        abort(403)
+
+    form = ReminderForm(obj=reminder)
+    form.medication_id.choices = [
+        (med.id, med.name) for med in Medication.query.filter_by(user_id=current_user.id).order_by(Medication.name)
+    ]
+
+    if form.validate_on_submit():
+        form.populate_obj(reminder)
+        db.session.commit()
+        flash('Lembrete atualizado com sucesso!', 'success')
+        return redirect(url_for('medication.reminders'))
+    
+    return render_template(
+        'medications/reminders/reminders_edit.html',
+        form=form,
+        actions_url=url_for('medication.edit_reminder', reminder_id=reminder.id),
+        button_text='Salvar alterações'
+    )
+
+@medication_bp.route('/reminders/<int:reminder_id>/delete', methods=['POST'])
+@login_required
+def delete_reminder(reminder_id):
+    reminder = MedicationReminder.query.get_or_404(reminder_id)
+
+    if reminder.user_id != current_user.id:
+        abort(403)
+
+    db.session.delete(reminder)
+    db.session.commit()
+    flash('Lembrete excluído com sucesso!', 'success')
+    return redirect(url_for('medication.reminders'))
 
 # rota para teste.
 @medication_bp.route('/recent-mock')

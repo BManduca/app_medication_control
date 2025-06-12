@@ -1,6 +1,6 @@
 from datetime import date
 from flask_wtf import FlaskForm
-from wtforms import DateField, StringField, IntegerField, TextAreaField, SubmitField, PasswordField, TimeField
+from wtforms import BooleanField, DateField, SelectField, StringField, IntegerField, TextAreaField, SubmitField, PasswordField, TimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional, Email, EqualTo, ValidationError
 
 class MedicationForm(FlaskForm):
@@ -93,4 +93,24 @@ class NameFilterForm(FlaskForm):
 class EditRegisterForm(FlaskForm):
     amount_administered = StringField('Quantidade administrada', validators=[Optional()])
     observation = TextAreaField('Observação', validators=[Optional()])
+    submit = SubmitField('Salvar')
+
+class ReminderForm(FlaskForm):
+    medication_id = SelectField(
+        'Medicamento',
+        coerce=int,
+        validators=[DataRequired(message='Selecione um medicamento.')]
+    )
+    time = TimeField('Horário', validators=[DataRequired(message='Informe um horário válido para o lembrete.')])
+    frequency = SelectField(
+        'Frequência',
+        choices=[
+            ('once', 'Apenas uma vez'),
+            ('daily', 'Diariamente'),
+            ('weekly', 'Semanalmente')
+        ],
+        default='once',
+        validators=[DataRequired(message='Por favor, selecione a frequência do lembrete.')]
+    )
+    active = BooleanField('Ativo', default=True)
     submit = SubmitField('Salvar')

@@ -60,6 +60,10 @@
               class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
               Adicionar medicamento
             </a>
+            <a href="{{ url_for('medication.reminders') }}"
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+              Lembretes
+            </a>
             <a href="{{ url_for('medication.view_history') }}"
               class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
               Histórico
@@ -150,6 +154,10 @@
           <a href="{{ url_for('medication.add_medication') }}" 
             class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
             Adicionar medicamento
+          </a>
+          <a href="{{ url_for('medication.reminders') }}" 
+            class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+            Lembretes
           </a>
           <a href="{{ url_for('medication.view_history') }}"
             class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">

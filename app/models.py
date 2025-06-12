@@ -16,7 +16,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
 
     registers = db.relationship('Register', backref='user', lazy=True)
-    medications = db.relationship('Medication', backref='user', lazy=True)
+    medications = db.relationship('Medication', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -58,3 +58,21 @@ class Register(db.Model):
 
     def __repr__(self):
         return f'<Register {self.id} - User {self.user_id} - Medication {self.medication_id}>'
+    
+class MedicationReminder(db.Model):
+    __tablename__ = 'medicationsreminders'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    medication_id = db.Column(db.Integer, db.ForeignKey('medications.id'), name='fk_medicationsreminders_medication_id', nullable=False)
+    time = db.Column(db.Time, nullable=False) # horário do lembrete
+    active = db.Column(db.Boolean, default=True) # se o lembrete está ativo ou não
+    frequency = db.Column(db.String(20), default='once') # 'once', 'daily', 'weekly'
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    user = db.relationship('User', backref='reminders', lazy=True)
+    medication = db.relationship('Medication', backref='reminders', lazy=True)
+
+    def __repr__(self):
+        med_name = self.medication.name if self.medication else 'Unknown'
+        return f'<ReminderID {self.id} - MedID {self.medication_id} - {med_name} at {self.time.strftime('%H:%M')}>'

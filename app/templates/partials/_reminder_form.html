@@ -1,0 +1,28 @@
+{% import 'partials/_form_field.html' as forms %}
+{% import 'partials/_buttons.html' as buttons %}
+
+<form
+    action="{{ actions_url }}"
+    method="POST"
+    class="bg-gray-100 dark:bg-gray-700 border border-blue-500 dark:border-gray-300 p-4 rounded shadow">
+    
+    {{ form.hidden_tag() }}
+
+    {{ forms.render_field(form.medication_id, label='Medicamento') }}
+    {{ forms.render_field(form.time, label='Horário') }}
+    {{ forms.render_field(form.frequency, label='Frequência') }}
+
+    <div class="mb-4">
+        {{ form.active() }} {{ form.active.label }}
+    </div>
+
+    <div x-data="{ loading: false }">
+        {{ buttons.render_button(
+            text='Salvar lembrete',
+            type='submit',
+            icon='alarm-plus',
+            classes='bg-blue-600 text-white px-4 py-2 rounded'
+        ) }}
+    </div>
+
+</form>

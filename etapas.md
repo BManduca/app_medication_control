@@ -206,75 +206,22 @@ Com tudo testado e validado, podemos:
 	•	Incluir logs no app para monitorar erros em produção.
 	•	Adotar ferramentas de CI/CD (ex.: GitHub Actions para rodar testes automaticamente em push/pull request).
 
----
 
-🚀 Passo 1: Repositório GitHub
+finalizado a etapa 1, podemos prosseguir:
 
-✅ Tenha o seu projeto em um repositório GitHub (público ou privado).
-✅ O Render se conecta direto ao GitHub para deploys automáticos.
+2. Implementar lembretes e notificações
+	•	Objetivo: Auxiliar o usuário a lembrar de tomar os medicamentos nos horários certos.
+	•	Como fazer?
+	•	Lembretes dentro da aplicação: Mostrar alertas ou notificações quando o usuário acessar o app, lembrando os horários do medicamento.
+	•	Notificações externas: (Opcional) Implementar envio de notificações via SMS, e-mail ou push notification, usando serviços externos como Zenvia (que você já conhece) ou APIs como Firebase Cloud Messaging.
+	•	Agendamento: Salvar os horários de uso no banco de dados e programar verificações periódicas (via background job ou scheduler, tipo APScheduler) para disparar os lembretes.
+	•	Benefício: Reduzir o risco do usuário esquecer de tomar o remédio.
 
-⸻
-
-🚀 Passo 2: Prepare o seu projeto
-1.	requirements.txt atualizado
-•	Gere ou atualize:
-	```
-	pip freeze > requirements.txt
-	```
-	•	Confirme que todas as dependências estão listadas.
-
-2.	Procfile (opcional, mas ajuda)
-•	Render reconhece Procfile como no Heroku.
-•	Crie um arquivo Procfile na raiz do projeto:
-	```
-	web: gunicorn app:app
-	```
-	(onde app é o nome do seu arquivo Python que cria a aplicação Flask, e app é a instância do Flask).
-
-3.	Banco de dados (se necessário)
-•	Se usar Postgres (ou outro), já configure a string de conexão no .env ou no Render.
-
-⸻
-
-🚀 Passo 3: Conta no Render
-	1.	Acesse Render.com.
-	2.	Crie uma conta ou faça login.
-
-⸻
-
-🚀 Passo 4: Crie o serviço web
-	1.	No Dashboard do Render, clique em “New Web Service”.
-	2.	Conecte o seu repositório GitHub e selecione o projeto.
-	3.	Configure:
-	•	Environment: Python 3.12 (ou a versão que você usa).
-	•	Build Command: pip install -r requirements.txt
-	•	Start Command: gunicorn app:app
-(ajuste o caminho para o seu arquivo principal se necessário).
-	•	Region: escolha a mais próxima de seus usuários.
-	4.	Adicione as variáveis de ambiente necessárias (como DATABASE_URL, FLASK_ENV=production, etc.) na aba Environment.
-
-⸻
-
-🚀 Passo 5: Deploy automático e monitoramento
-	•	O Render vai fazer o deploy automaticamente.
-	•	Cada push no GitHub dispara um deploy novo.
-	•	O painel do Render mostra logs em tempo real (para debug).
-	•	É possível escalar o serviço (RAM/CPU) com 1 clique.
-
-⸻
-
-🚀 Banco de dados no Render
-
-Se você usar Postgres (por exemplo), Render já fornece um serviço de banco de dados gerenciado:
-
-✅ Vá em “Databases” > “New Database” e crie um novo banco.
-✅ Pegue a string de conexão e configure no .env ou nas variáveis do serviço.
-
-⸻
-
-🚀 Checklist final de produção
-
-✅ Use FLASK_ENV=production ou DEBUG=0.
-✅ Use um servidor WSGI como gunicorn (não o Flask dev server).
-✅ Configure variáveis secretas (SECRET_KEY, etc.).
-✅ Verifique CORS e HTTPS.
+3. Facilitar o registro de uso do medicamento
+	•	Situação atual: O usuário registra manualmente o uso dos medicamentos.
+	•	O que pode melhorar?
+	•	Registro rápido: Criar botões ou atalhos na listagem de medicamentos para registrar o uso com um clique.
+	•	Registro automático: Se o usuário marcar que tomou no horário do lembrete, o sistema pode registrar automaticamente.
+	•	Feedback visual: Mostrar confirmação clara (alerta, toast, modal) quando o registro for feito com sucesso.
+	•	Histórico integrado: Atualizar o histórico em tempo real para que o usuário veja o registro recém-criado sem precisar atualizar a página.
+	•	Objetivo: Tornar o processo mais rápido e intuitivo, evitando que o usuário desista por ser complicado.
