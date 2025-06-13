@@ -6,6 +6,7 @@
 <div class="max-w-2xl mx-auto p4">
     <h1 class="text-xl font-bold mt-4 mb-4">Adicionar novo lembrete</h1>
 
+    {% include 'partials/_flash_messages.html' %}
     {% include 'partials/_reminder_form.html' with context %}
 </div>
 {% endblock %}

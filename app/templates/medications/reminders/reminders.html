@@ -24,22 +24,22 @@
     <ul class="mt-2 space-y-2">
         {% if reminders %}
             {% for rem in reminders %}
-                <li class="border p-2 rounded shadow-sm bg-gray-50 flex justify-between items-center">
+                <li class="border p-2 rounded shadow-sm bg-gray-50 dark:bg-gray-500 flex justify-between items-center">
                     <span>
-                        💊 {{ rem.medication.name }} às <strong>{{ rem.time.strftime('%H:%M') }}</strong>
+                        💊 <span class="text-gray-700 dark:text-gray-200">{{ rem.medication.name }} </span> às <strong class="text-gray-600 dark:text-gray-200">{{ rem.time.strftime('%H:%M') }}</strong>
 
                         {% if rem.frequency == 'daily' %}
-                            => 🔁 <span class="text-sm text-gray-600">Diariamente</span>
+                            => 🔁 <span class="text-sm text-gray-600 dark:text-gray-200">Diariamente</span>
                         {% elif rem.frequency == 'weekly' %}
-                            => 📅 <span class="text-sm text-gray-600">Semanalmente</span>
+                            => 📅 <span class="text-sm text-gray-600 dark:text-gray-200">Semanalmente</span>
                         {% else %}
-                            => 🕐 <span class="text-sm text-gray-600">Apenas uma vez</span>
+                            => 🕐 <span class="text-sm text-gray-600 dark:text-gray-200">Apenas uma vez</span>
                         {% endif %}
                         
                         {% if rem.active %}
-                            <span class="text-green-600 font-semibold">(Ativo)</span>
+                            <span class="text-green-600 dark:text-green-300 font-semibold">(Ativo)</span>
                         {% else %}
-                            <span class="text-gray-400">(Inativo)</span>
+                            <span class="text-gray-500 dark:text-gray-400">(Inativo)</span>
                         {% endif %}
                     </span>
                     <!-- espaço para botões de editar e excluir -->
@@ -48,7 +48,7 @@
                             text='Editar',
                             href=url_for('medication.edit_reminder', reminder_id=rem.id),
                             icon='edit',
-                            classes='text-blue-600 hover:underline text-sm'
+                            classes='text-blue-600 dark:text-blue-300 hover:underline text-sm'
                         ) }}
 
                         <!-- formulário para exclusão do lembrete com botão -->

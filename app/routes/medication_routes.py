@@ -410,7 +410,7 @@ def add_reminder():
 
         db.session.add(reminder)
         db.session.commit()
-        flash('Lembre criado com sucesso!', 'success')
+        flash('Lembrete criado com sucesso!', 'success')
         return redirect(url_for('medication.reminders'))
     
     return render_template(
