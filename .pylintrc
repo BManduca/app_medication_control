@@ -16,6 +16,7 @@ disable=
       W0611, # unused-import
       C0415, # import-outside-toplevel
       C0413, #wrong-import-position
+      W0621, #redefined-outer-name
 
 # Analyse import fallback blocks. This can be used to support both Python 2 and
 # 3 compatible code, which means that the block might have code that exists

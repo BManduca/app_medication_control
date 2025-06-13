@@ -70,7 +70,7 @@ def test_login_success(client, app):
 
     response = client.post('/auth/login', data={
         'email': 'loginsuccess@example.com',
-        'password': '12345'
+        'password': '123456'
     }, follow_redirects=True)
 
     assert response.status_code == 200
@@ -93,3 +93,26 @@ def test_duplicate_email_register_fails(client, app):
     assert response.status_code == 200
     html = response.data.decode("utf-8")
     assert 'Cadastrar' in html and 'Faça login ou use outro email' in html
+
+def test_login_no_existent_user(client):
+    response = client.post('/auth/login', data={
+        'email': 'naoexiste@example.com',
+        'password': 'senhateste'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'E-mail ou senha inválidos' in html
+
+def test_register_empty_field(client):
+    response = client.post('/auth/register', data={
+        'username': '',
+        'email': '',
+        'password': '',
+        'confirm_password': ''
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'O nome de usuário é obrigatório' in html or 'O e-mail é obrigatório' in html
+    assert 'A confirmação da senha é obrigatória' in html or 'Este campo é obrigatório' in html
