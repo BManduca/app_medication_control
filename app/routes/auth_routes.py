@@ -16,14 +16,9 @@ def init_oauth(app):
         name='google',
         client_id=app.config['GOOGLE_CLIENT_ID'],
         client_secret=app.config['GOOGLE_CLIENT_SECRET'],
-        access_token_url='https://oauth2.googleapis.com/token',
-        authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
-        api_base_url='https://www.googleapis.com/oauth2/v2/',
-        userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
-        client_kwargs={'scope': 'openid email profile'},
-        authorize_params={
-            'access_type': 'offline',
-            'prompt': 'consent'
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid email profile'
         }
     )
 
@@ -69,15 +64,21 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data.lower()).first()
         
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            next_page = request.args.get('next')
-            if next_page and not is_safe_url(next_page):
-                return abort(400)
-            flash('Login realizado com sucesso!', 'success')
-            return redirect(next_page or url_for('user_dashboard.dashboard'))
+        if user:
+            if user.is_google_user:
+                flash('Este usuário foi cadastrado via Google. Por favor, faça login usando o Google.', 'warning')
+                return redirect(url_for('auth.login'))
+            elif user.check_password(form.password.data):
+                login_user(user)
+                next_page = request.args.get('next')
+                if next_page and not is_safe_url(next_page):
+                    return abort(400)
+                flash('Login realizado com sucesso!', 'success')
+                return redirect(next_page or url_for('user_dashboard.dashboard'))
+            else:
+                flash('Senha inválida! Tente novamente.', 'danger')
         else:
-            flash('E-mail ou senha inválidos! Tente novamente.', 'danger')
+            flash('E-mail inválido! Tente novamente.', 'danger')
         
     return render_template('auth/login.html', form=form)
 
@@ -109,7 +110,14 @@ def google_authorized():
         flash('Autenticação com Google falhou!', 'danger')
         return redirect(url_for('auth.login'))
     
-    user_info = oauth.google.get('userinfo').json()
+    # Obtendo user info diretamente do endpoint userinfo com o token de acesso
+    try:
+        resp = oauth.google.get('https://openidconnect.googleapis.com/v1/userinfo', token=token)
+        user_info = resp.json()
+    except Exception as e:
+        flash('Erro ao obter informações do usuário Google: ' + str(e), 'danger')
+        return redirect(url_for('auth.login'))
+
     email = user_info.get('email')
     name = user_info.get('name')
 
@@ -119,10 +127,12 @@ def google_authorized():
     
     user = User.query.filter_by(email=email).first()
     if not user:
-        user = User(name=name, email=email)
-        # Opcional: definir um flag para usuário via Google, ex: user.is_google_user = True
+        user = User(name=name, email=email, is_google_user=True)
         db.session.add(user)
         db.session.commit()
+    elif not user.is_google_user:
+        flash('Este email já está registrado com senha. Use o login tradicional.', 'danger')
+        return redirect(url_for('auth.login'))
 
     login_user(user)
     flash(f'Bem-vindo(a), {user.name} (login Google)!', 'success')

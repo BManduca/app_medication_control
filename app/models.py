@@ -13,7 +13,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.Text, nullable=False)
+    password_hash = db.Column(db.Text, nullable=False) # campo para senha tradicional
+    is_google_user = db.Column(db.Boolean, default=False) # <------- Flag
 
     registers = db.relationship('Register', backref='user', lazy=True)
     medications = db.relationship('Medication', backref='user', lazy=True, cascade='all, delete-orphan')
