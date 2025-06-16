@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: AppMedicationControl
+    env: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: appmedicationcontrol-db
+      - key: SQLALCHEMY_DATABASE_URI
+        fromDatabase:
+          name: appmedicationcontrol-db
+      - key: FLASK_ENV
+        value: production
+      - key: GOOGLE_CLIENT_ID
+        value: ${GOOGLE_CLIENT_ID}
+      - key: GOOGLE_CLIENT_SECRET
+        value: ${GOOGLE_CLIENT_SECRET}
+
+databases:
+  - name: appmedicationcontrol-db
+    region: oregon
+    plan: starter
