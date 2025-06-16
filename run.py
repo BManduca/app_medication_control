@@ -10,5 +10,5 @@ migrate = Migrate(app, db)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    # iniciar servidor desenvolvimento Flask  # usa 5000 se PORT não estiver definido
-    app.run(host="0.0.0.0", port=port)
+    # iniciar servidor desenvolvimento Flask
+    app.run(debug=True, host="0.0.0.0", port=port)
