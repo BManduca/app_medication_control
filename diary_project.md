@@ -202,4 +202,74 @@ touch tests/conftest.py tests/test_auth.py tests/test_medications.py tests/test_
   * pyhton3 -m pytest
 
 
+### 'Dockerização' e deploy
 
+1. criando o Dockerfile
+```
+# Imagem oficial do Python como base
+FROM python:3.12-slim
+
+# definindo diretório de trabalho dentro do container
+WORKDIR /app
+
+# Ação de copiar o requirements.txt e instalar as dependências
+COPY requirements.txt .
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Copiar todo o projeto para o container
+COPY . .
+
+# Evidenciando/Expondo a porta que o Flask vai executar
+EXPOSE 5000
+
+# criando variável de ambiente para evidenciar que a app esta em prod
+ENV FLASK_ENV=production
+
+# comando para rodar a app em Gunicorn (mais robusto que flask run)
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+```
+* Obs.: Substitua "app:app" pelo módulo e objeto da sua aplicação Flask
+* Ex.: se seu app é criado em app/__init__.py como app = Flask(__name__), o caminho pode ser app:app
+* gunicorn é um servidor WSGI leve, confiável e performático
+
+2. Criar requirements.txt (caso ainda não tenha)
+```
+venv/bin/pip3 freeze > requirements.txt
+```
+Obs.: Nesse caso estou acessando do meu ambiente virtual
+
+3. Testar localmente o container Docker
+```
+docker build -t my-flask-app .
+docker run -p 8080:5000 my-flask-app
+```
+
+### Comandos Docker:
+1. Testar a app isoladamente
+``` docker run ```
+
+2. Subir com banco de dados
+``` docker-compose up ```
+
+3. Subir ambiente local de dev
+``` docker-compose -f docker-compose.yml up ```
+
+4. Subir produção com Compose
+``` docker-compose --env-file .env.prod up ```
+
+
+### Executando projeto com docker
+
+1. Garante que está tudo rodando
+docker-compose up -d
+
+2. (Opcional) Inicializa o diretório de migrações
+* ob.: Se caso tiver um diretorio /migrations, não precisa desse passo e pode rodar o upgrade diretamente
+docker-compose exec web flask db init
+
+3. Gera as migrações
+docker-compose exec web flask db migrate -m "initial tables"
+
+4. Aplica as migrações
+docker-compose exec web flask db upgrade

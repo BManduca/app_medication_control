@@ -1,11 +1,31 @@
 from urllib.parse import urljoin, urlparse
 from flask import Blueprint, abort, render_template, redirect, url_for, flash, request
+from authlib.integrations.flask_client import OAuth
 from flask_login import login_user, logout_user, login_required
 from app.forms import LoginForm, RegisterForm
 from app.models import User
 from app import db
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+oauth = OAuth()
+
+# Função para inicializar OAuth
+def init_oauth(app):
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        client_id=app.config['GOOGLE_CLIENT_ID'],
+        client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+        access_token_url='https://oauth2.googleapis.com/token',
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+        api_base_url='https://www.googleapis.com/oauth2/v2/',
+        userinfo_endpoint='https://www.googleapis.com/oauth2/v2/userinfo',
+        client_kwargs={'scope': 'openid email profile'},
+        authorize_params={
+            'access_type': 'offline',
+            'prompt': 'consent'
+        }
+    )
 
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
@@ -67,3 +87,36 @@ def logout():
     logout_user()
     flash('Você efetuou logout da sua conta!', 'info')
     return redirect(url_for('auth.login'))
+
+# ----------------------------
+# GOOGLE OAUTH ROUTES
+# ----------------------------
+@auth_bp.route('/login/google')
+def login_google():
+    redirect_uri = url_for('auth.google_authorized', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@auth_bp.route('/login/google/authorized')
+def google_authorized():
+    token = oauth.google.authorize_access_token()
+    if not token:
+        flash('Autenticação com Google falhou!', 'danger')
+        return redirect(url_for('auth.login'))
+    
+    user_info = oauth.google.get('userinfo').json()
+    email = user_info.get('email')
+    name = user_info.get('name')
+
+    if not email:
+        flash('Não foi possível obter o email da conta Google.', 'danger')
+        return redirect(url_for('auth.login'))
+    
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        user = User(name=name, email=email)
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    flash(f'Bem-vindo(a), {user.name} (Google login)!', 'success')
+    return redirect(url_for('user_dashboard.dashboard'))

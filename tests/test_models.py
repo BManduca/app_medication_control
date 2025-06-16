@@ -51,7 +51,7 @@ def test_create_medication(app):
         assert saved_med.dosage == "500mg"
         assert saved_med.expiration_date == date(2025, 12, 31)
         assert saved_med.frequency == "2x ao dia"
-        assert saved_med.stock == 10
+        assert saved_med.stock == 10.0 # confirmado como float
         assert saved_med.instructions == "Tomar após o café e a janta"
         assert saved_med.user_id == user.id
 

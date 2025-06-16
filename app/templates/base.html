@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Controle de Medicamentos{% endblock %}</title>
+
+        <!-- Favicon Padrão -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_dark_128.ico') }}">
+
+    <!-- Favicon Light -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_light_128.ico') }}" media="(prefers-color-schema: light)">
+
+    <!-- Favicon Dark -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_dark_128.ico') }}" media="(prefers-color-schema: dark)">
+
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/output.css') }}"
@@ -41,12 +51,30 @@
           </button>
         </div>
 
+        <!-- class="flex items-center gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2
+            w-full text-center md:order-1 md:w-auto md:justify-start" -->
+        <!-- class="flex flex-col items-center justify-center w-full md:flex-row md:items-center md:justify-start 
+            md:w-auto gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2 md:order-1" -->
         <a
           href="{{ url_for('user_dashboard.dashboard') }}"
-          class="text-xl font-bold text-blue-600 dark:text-blue-400 order-2 
-            w-full text-center md:order-1 md:w-auto md:text-left"
+          class="flex items-center justify-center gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2
+            w-full text-center md:order-1 md:w-auto md:justify-start"
         >
-          AppMedicationControl
+          <!-- icon light -->
+          <img src="{{ url_for('static', filename='../static/images/badge_appmedicationcontrol_light_128.ico') }}"
+              alt="Logo light"
+              class="w-10 h-10 block dark:hidden rounded-lg"
+          />
+
+          <!-- icon dark -->
+          <img src="{{ url_for('static', filename='../static/images/badge_appmedicationcontrol_dark_128.ico') }}"
+              alt="Logo dark"
+              class="w-10 h-10 hidden dark:block rounded-lg"
+          />
+
+          <!-- Application name - visível somente no desktop -->
+           <!-- class="hidden md:inline" -->
+          <span>AppMedicationControl</span>
         </a>
 
         <!-- links desktop -->

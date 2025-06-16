@@ -1,13 +1,10 @@
 from datetime import datetime, timezone
 import os
-from dotenv import load_dotenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from config import DevConfig, ProdConfig
-
-load_dotenv()
 
 # criando instancias "vazias" para o banco de dados, migração e autenticação
 db = SQLAlchemy()
@@ -22,13 +19,6 @@ login_manager.login_message_category = 'warning' # categoria do flash
 def create_app(testing=False):
     app = Flask(__name__)
 
-    # carregando configurações do arquivo config.py | define se é dev ou prod
-    env = os.getenv('FLASK_ENV', 'development')
-    if env == 'production':
-        app.config.from_object(ProdConfig)
-    else:
-        app.config.from_object(DevConfig)
-
     # se testing=True, sobrescreve as configs para testes
     if testing:
         app.config.update({
@@ -36,16 +26,25 @@ def create_app(testing=False):
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "WTF_CSRF_ENABLED": False,  # Desativa CSRF para testes
         })
+    else:
+        # carregando configurações do arquivo config.py | define se é dev ou prod
+        env = os.getenv('FLASK_ENV', 'development')
+        if env == 'production':
+            app.config.from_object(ProdConfig)
+        else:
+            app.config.from_object(DevConfig)
 
     # Inicializa extensões com a aplicação
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
+    from app.routes.auth_routes import auth_bp, init_oauth
+    init_oauth(app)
+
     # carrega dos modelos definidos em app/models.py no momento em que o app é criado
     from app import models
 
-    from app.routes.auth_routes import auth_bp
     from app.routes.dashboard_routes import dashboard_bp
     from app.routes.medication_routes import medication_bp
     from app.routes.main_routes import main

@@ -1,6 +1,7 @@
 # Ambientes virtuais
 venv/
-.env
+.env.dev
+.env.prod
 *.env
 
 # Bytecode do Python
@@ -23,7 +24,7 @@ Thumbs.db
 .vscode/
 
 # Arquivos de build do Tailwind ou outras ferramentas
-static/css/output.css
+!static/css/output.css
 static/css/*.map
 node_modules/
 dist/
@@ -36,3 +37,11 @@ instance/
 *.bak
 *.swp
 *.tmp
+
+# Pytest e cobertura de testes
+.pytest_cache/
+htmlcov/
+coverage.xml
+
+# __pycache__ ou arquivos gerados por migrações temporárias
+migrations/__pycache__/
