@@ -47,12 +47,14 @@ def create_app(testing=False):
 
     from app.routes.dashboard_routes import dashboard_bp
     from app.routes.medication_routes import medication_bp
+    from app.routes.admin_routes import admin_bp
     from app.routes.main_routes import main
 
     app.register_blueprint(auth_bp) # Rotas de autenticação
     app.register_blueprint(dashboard_bp) # Rota protegia: /dashboard
     app.register_blueprint(medication_bp) # Rotas dos medicamentos
     app.register_blueprint(main) # Rota principal: /
+    app.register_blueprint(admin_bp) # Registrando rota de Migração: /run-migrations
 
     @app.context_processor
     def inject_now():
