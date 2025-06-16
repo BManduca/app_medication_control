@@ -11,8 +11,8 @@ dashboard_bp = Blueprint('user_dashboard', __name__)
 @login_required
 def dashboard():
     # Contagem
-    total_medications = Medication.query.filter_by(user_id=current_user.id).count()
     total_registers = Register.query.filter_by(user_id=current_user.id).count()
+    medications_in_stock = Medication.query.filter_by(user_id=current_user.id).filter(Medication.stock > 0).count()
 
     # Últimos registros
     recent_registers = (
@@ -58,7 +58,7 @@ def dashboard():
     return render_template(
         'dashboard.html',
         user=current_user.name,
-        total_medications=total_medications,
+        medications_in_stock=medications_in_stock,
         total_registers=total_registers,
         recent_registers=recent_registers,
         reminders=reminders,

@@ -285,6 +285,16 @@ def export_history_csv():
     for reg in registers:
         med = reg.medication
         expiration_date_str = med.expiration_date.strftime('%d/%m/%Y') if med.expiration_date else ''
+
+        # convertendo estoque para float e formatando com 2 casas decimais, se não for None
+        stock_value = ''
+        if med.stock is not None:
+            try:
+                stock_float = float(med.stock)
+                stock_value = f"{stock_float:.2f}"
+            except (ValueError, TypeError):
+                stock_value = '' # se der erro na conversão
+
         writer.writerow([
             reg.date_time.strftime('%d/%m/%Y %H:%M'),
             med.name,
@@ -293,7 +303,7 @@ def export_history_csv():
             expiration_date_str,
             med.frequency or '',
             med.hour or '',
-            med.stock or '',
+            stock_value,
             med.instructions or '',
             reg.amount_administered or '',
             reg.observation or ''
