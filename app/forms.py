@@ -1,6 +1,6 @@
 from datetime import date
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, DateField, SelectField, StringField, IntegerField, TextAreaField, SubmitField, PasswordField, TimeField
+from wtforms import BooleanField, DateField, FloatField, SelectField, StringField, IntegerField, TextAreaField, SubmitField, PasswordField, TimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional, Email, EqualTo, ValidationError
 
 class MedicationForm(FlaskForm):
@@ -27,7 +27,7 @@ class MedicationForm(FlaskForm):
         Length(max=100, message='A frequência deve ter no máximo 100 caracteres.')
     ])
     hour = TimeField('Horário (opcional)')
-    stock = IntegerField('Estoque', validators=[
+    stock = FloatField('Estoque', validators=[
         DataRequired(message='O estoque é obrigatório.'),
         NumberRange(min=0, message='O estoque não pode ser negativo.')
     ])
