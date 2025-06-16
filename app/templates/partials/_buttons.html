@@ -1,9 +1,11 @@
-{% macro render_button(text, href=None, icon=None, type="button", classes="", loading=False, loading_text="Carregando...") %}
+{% macro render_button(text, href=None, icon=None, custom_icon=None, type="button", classes="", loading=False, loading_text="Carregando...") %}
   {% if href %}
     <a href="{{ href }}"
        class="inline-flex items-center justify-center gap-2 {{ classes }}"
        aria-label="{{ text }}">
-      {% if icon %}
+      {% if custom_icon %}
+        {{ custom_icon|safe }}
+      {% elif icon %}
         <i data-lucide="{{ icon }}" class="w-5 h-5" aria-hidden="true"></i>
       {% endif %}
       <span>{{ text }}</span>
@@ -22,7 +24,9 @@
         </svg>
       </template>
       <template x-if="!loading">
-        {% if icon %}
+        {% if custom_icon %}
+          {{ custom_icon|safe }}
+        {% elif icon %}
           <i data-lucide="{{ icon }}" class="w-5 h-5" aria-hidden="true"></i>
         {% endif %}
       </template>
