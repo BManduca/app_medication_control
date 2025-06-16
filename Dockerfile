@@ -7,7 +7,7 @@ WORKDIR /app
 # Ação de copiar o requirements.txt e instalar as dependências
 COPY requirements.txt .
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt --root-user-action=ignore
 
 # Copiar todo o projeto para o container
 COPY . .
