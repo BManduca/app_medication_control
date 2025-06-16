@@ -19,4 +19,4 @@ EXPOSE 5000
 ENV FLASK_ENV=production
 
 # comando para rodar a app em Gunicorn (mais robusto que flask run)
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "wsgi:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "wsgi:app"]

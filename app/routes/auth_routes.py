@@ -9,7 +9,7 @@ from app import db
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 oauth = OAuth()
 
-# Função para inicializar OAuth
+# Função para inicializar OAuth com configuração do Google
 def init_oauth(app):
     oauth.init_app(app)
     oauth.register(
@@ -17,9 +17,9 @@ def init_oauth(app):
         client_id=app.config['GOOGLE_CLIENT_ID'],
         client_secret=app.config['GOOGLE_CLIENT_SECRET'],
         access_token_url='https://oauth2.googleapis.com/token',
-        authorize_url='https://accounts.google.com/o/oauth2/auth',
+        authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
         api_base_url='https://www.googleapis.com/oauth2/v2/',
-        userinfo_endpoint='https://www.googleapis.com/oauth2/v2/userinfo',
+        userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
         client_kwargs={'scope': 'openid email profile'},
         authorize_params={
             'access_type': 'offline',
@@ -91,6 +91,7 @@ def logout():
 # ----------------------------
 # GOOGLE OAUTH ROUTES
 # ----------------------------
+
 @auth_bp.route('/login/google')
 def login_google():
     redirect_uri = url_for('auth.google_authorized', _external=True)
@@ -98,7 +99,12 @@ def login_google():
 
 @auth_bp.route('/login/google/authorized')
 def google_authorized():
-    token = oauth.google.authorize_access_token()
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception as e:
+        flash('Erro na autenticação com Google: ' + str(e), 'danger')
+        return redirect(url_for('auth.login'))
+
     if not token:
         flash('Autenticação com Google falhou!', 'danger')
         return redirect(url_for('auth.login'))
@@ -114,9 +120,10 @@ def google_authorized():
     user = User.query.filter_by(email=email).first()
     if not user:
         user = User(name=name, email=email)
+        # Opcional: definir um flag para usuário via Google, ex: user.is_google_user = True
         db.session.add(user)
         db.session.commit()
 
     login_user(user)
-    flash(f'Bem-vindo(a), {user.name} (Google login)!', 'success')
+    flash(f'Bem-vindo(a), {user.name} (login Google)!', 'success')
     return redirect(url_for('user_dashboard.dashboard'))
