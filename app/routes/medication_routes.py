@@ -407,8 +407,8 @@ def delete_register(reg_id):
         medication.stock = (medication.stock or 0) + quantity_float
 
         # decrementa o contador, garantindo que não fique negativo
-        if medication.cont_total_register and medication.cont_total_register > 0:
-            medication.cont_total_register -= 1
+        if medication.cont_total_use_register and medication.cont_total_use_register > 0:
+            medication.cont_total_use_register -= 1
 
     db.session.delete(register)
     db.session.commit()
