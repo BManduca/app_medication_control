@@ -48,7 +48,7 @@ class Medication(db.Model):
     # caso medicamento seja deletado, seus lembretes automaticamente também serão
     reminders = db.relationship(
         'MedicationReminder',
-        backref='medication',
+        back_populates='medication',
         lazy=True,
         cascade='all, delete-orphan'
     )
@@ -80,8 +80,8 @@ class MedicationReminder(db.Model):
     frequency = db.Column(db.String(20), default='once') # 'once', 'daily', 'weekly'
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    user = db.relationship('User', backref='reminders', lazy=True)
-    medication = db.relationship('Medication', backref='reminders', lazy=True)
+    user = db.relationship('User', back_populates='reminders', lazy=True)
+    medication = db.relationship('Medication', back_populates='reminders', lazy=True)
 
     def __repr__(self):
         med_name = self.medication.name if self.medication else 'Unknown'
