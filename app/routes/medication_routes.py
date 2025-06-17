@@ -59,6 +59,7 @@ def add_medication():
             frequency = form.frequency.data,
             hour = form.hour.data,
             stock = form.stock.data,
+            cont_total_register = 0,
             instructions = form.instructions.data
         )
         db.session.add(medication)
@@ -114,16 +115,16 @@ def register_use():
     form = RegisterUseMedicationForm()
 
     if form.validate_on_submit():
-        quantity_used = form.quantity.data
+        quantity_used_str = form.quantity.data
         observation = form.observation.data
 
-        if not quantity_used:
-            flash('A quantidade deve ser maior que zero.', 'danger')
+        if not quantity_used_str:
+            flash('A quantidade deve ser informada e maior que zero.', 'danger')
             return redirect(url_for('medication.register_use', med_id=med_id))
         
-        # convertendo para float
+        # Convertendo quantidade para float, permitindo vírgula ou ponto
         try:
-            quantity_float = float(quantity_used.replace(',', '.'))
+            quantity_float = float(quantity_used_str.replace(',', '.'))
         except ValueError:
             flash('Quantidade inválida! Use apenas números.', 'danger')
             return redirect(url_for('medication.register_use', med_id=med_id))
@@ -132,23 +133,29 @@ def register_use():
             flash('A quantidade deve ser maior que zero.', 'danger')
             return redirect(url_for('medication.register_use', med_id=med_id))
         
-        if medication.stock < quantity_float:
+        # Verifica estoque disponível
+        if medication.stock is None or medication.stock < quantity_float:
             flash('Estoque insuficiente para registrar a quantidade desejada.', 'danger')
             return redirect(url_for('medication.register_use', med_id=med_id))
         
+        # Cria registro de uso
         register = Register(
             user_id=current_user.id,
             medication_id=med_id,
-            amount_administered=str(quantity_float), # quantidade consumida
+            amount_administered=str(quantity_float),  # salvo como string, poderia ser float se quiser
             observation=observation,
             date_time=datetime.now(timezone.utc)
         )
 
+        # Atualiza estoque
         medication.stock -= quantity_float
+
+        medication.cont_total_use_register = (medication.cont_total_use_register or 0) + 1
+
         db.session.add(register)
         db.session.commit()
 
-        flash(f'Uso do medicamento {medication.name} registrado com sucesso!', 'success')
+        flash(f'Uso do medicamento "{medication.name}" registrado com sucesso!', 'success')
         return redirect(url_for('medication.list_medications'))
     
     return render_template(
@@ -387,6 +394,21 @@ def delete_register(reg_id):
 
     if register.user_id != current_user.id:
         abort(403)
+
+    medication = Medication.query.get(register.medication_id)
+
+    if medication:
+        # incrementa o estoqye do medicamento com a quantidade do registro excluido
+        try:
+            quantity_float = float(register.amount_administered.replace(',', '.'))
+        except Exception:
+            quantity_float = 0
+
+        medication.stock = (medication.stock or 0) + quantity_float
+
+        # decrementa o contador, garantindo que não fique negativo
+        if medication.cont_total_register and medication.cont_total_register > 0:
+            medication.cont_total_register -= 1
 
     db.session.delete(register)
     db.session.commit()

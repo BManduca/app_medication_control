@@ -40,6 +40,7 @@ class Medication(db.Model):
     frequency = db.Column(db.String(50), nullable=True) # Ex.: 3x ao dia
     hour = db.Column(db.Time, nullable=True)
     stock = db.Column(db.Float, default=0.0)
+    cont_total_use_register = db.Column(db.Integer, default=0)
     instructions = db.Column(db.Text, nullable=True)  # pode ser texto longo e opcional
 
     registers = db.relationship('Register', backref='medication', lazy=True)
