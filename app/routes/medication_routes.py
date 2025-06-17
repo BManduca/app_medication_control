@@ -396,22 +396,24 @@ def delete_register(reg_id):
         abort(403)
 
     medication = Medication.query.get(register.medication_id)
+    if not medication:
+        flash('Medicamento não encontrado.', 'danger')
+        return redirect(url_for('medication.recent_registers'))
 
-    if medication:
-        # incrementa o estoqye do medicamento com a quantidade do registro excluido
-        try:
-            quantity_float = float(register.amount_administered.replace(',', '.'))
-        except Exception:
-            quantity_float = 0
+    # Ajusta estoque revertendo o uso deletado
+    try:
+        quantity_used = float(register.amount_administered.replace(',', '.'))
+        medication.stock += quantity_used
+    except Exception:
+        pass  # Se der erro na conversão, ignore e não ajuste estoque
 
-        medication.stock = (medication.stock or 0) + quantity_float
-
-        # decrementa o contador, garantindo que não fique negativo
-        if medication.cont_total_use_register and medication.cont_total_use_register > 0:
-            medication.cont_total_use_register -= 1
-
-    db.session.delete(register)
-    db.session.commit()
+    try:
+        db.session.delete(register)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao excluir registro: {str(e)}', 'danger')
+        return redirect(url_for('medication.recent_registers'))
 
     flash('Registro excluído com sucesso!', 'info')
     return redirect(url_for('medication.recent_registers'))

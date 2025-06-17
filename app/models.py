@@ -45,6 +45,14 @@ class Medication(db.Model):
 
     registers = db.relationship('Register', backref='medication', lazy=True)
 
+    # caso medicamento seja deletado, seus lembretes automaticamente também serão
+    reminders = db.relationship(
+        'MedicationReminder',
+        backref='medication',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+
     def __repr__(self):
         return f'<Medication {self.name}>'
 
