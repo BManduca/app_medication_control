@@ -59,7 +59,7 @@ def add_medication():
             frequency = form.frequency.data,
             hour = form.hour.data,
             stock = form.stock.data,
-            cont_total_register = 0,
+            cont_total_use_register = 0,
             instructions = form.instructions.data
         )
         db.session.add(medication)
