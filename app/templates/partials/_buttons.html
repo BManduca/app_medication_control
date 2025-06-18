@@ -13,7 +13,7 @@
   {% else %}
     <button type="{{ type }}"
             :disabled="loading"
-            class="inline-flex items-center justify-center gap-2 {{ classes }} disabled:opacity-60 disabled:cursor-not-allowed"
+            class="{{ 'inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ' + classes }}"
             aria-label="{{ text }}">
 
       <!-- icon ou spinner -->

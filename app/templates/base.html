@@ -5,19 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Controle de Medicamentos{% endblock %}</title>
 
-        <!-- Favicon Padrão -->
+    <!-- Favicon Padrão -->
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_dark_128.ico') }}">
 
     <!-- Favicon Light -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_light_128.ico') }}" media="(prefers-color-schema: light)">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_light_128.ico') }}" media="(prefers-color-scheme: light)">
 
     <!-- Favicon Dark -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_dark_128.ico') }}" media="(prefers-color-schema: dark)">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/badge_appmedicationcontrol_dark_128.ico') }}" media="(prefers-color-scheme: dark)">
 
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/output.css') }}"
-    />
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
     <style>
       .dark input[type="date"]::-webkit-calendar-picker-indicator {
@@ -34,7 +31,7 @@
     <nav class="bg-white dark:bg-gray-800 shadow" x-data="{ open: false }">
       <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         
-        <!-- Mobile toogle -->
+        <!-- Mobile toggle -->
         <div class="md:hidden order-1">
           <button @click="open = !open" class="cursor-pointer">
             <svg
@@ -57,17 +54,17 @@
             md:w-auto gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2 md:order-1" -->
         <a
           href="{{ url_for('user_dashboard.dashboard') }}"
-          class="flex items-center justify-center gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2
-            w-full text-center md:order-1 md:w-auto md:justify-start"
+          class="flex items-center justify-center gap-2 text-sm sm:text-xl font-bold text-blue-600 dark:text-blue-400 order-2
+            w-full text-center md:order-1 md:w-auto md:justify-start md:text-left"
         >
           <!-- icon light -->
-          <img src="{{ url_for('static', filename='../static/images/badge_appmedicationcontrol_light_128.ico') }}"
+          <img src="{{ url_for('static', filename='images/badge_appmedicationcontrol_light_128.ico') }}"
               alt="Logo light"
               class="w-10 h-10 block dark:hidden rounded-lg"
           />
 
           <!-- icon dark -->
-          <img src="{{ url_for('static', filename='../static/images/badge_appmedicationcontrol_dark_128.ico') }}"
+          <img src="{{ url_for('static', filename='images/badge_appmedicationcontrol_dark_128.ico') }}"
               alt="Logo dark"
               class="w-10 h-10 hidden dark:block rounded-lg"
           />
@@ -97,6 +94,7 @@
               Histórico
             </a>
             <form method="POST" action="{{ url_for('auth.logout') }}">
+              {{ csrf_token() }}
               <button type="submit" class="text-red-600 hover:text-red-800 hover:underline">
                 Sair
               </button>
@@ -192,6 +190,7 @@
             Histórico
           </a>
           <form action="{{ url_for('auth.logout') }}" method="POST">
+            {{ csrf_token() }}
             <button
               type="submit"
               class="text-red-600 hover:underline py-2 block w-full text-left"
@@ -238,10 +237,42 @@
     </main>
 
     <!-- Rodapé -->
-    <footer class="bg-white dark:bg-gray-800 border-t mt-auto py-4 
-      text-center text-sm text-gray-500 dark:text-gray-400">
-      &copy; {{ now.year }} AppMedicationControl. Todos os direitos
-      reservados.
+    <footer class="bg-white dark:bg-gray-800 border-t mt-auto py-4 px-4 text-sm text-gray-500
+            dark:text-gray-400 flex flex-col md:flex-row justify-between items-center">
+            
+      <span class="text-center md:text-left">
+        &copy; {{ now.year }} AppMedicationControl. Todos os direitos reservados.
+      </span>
+
+      <span class="flex items-center gap-1">
+        Desenvolvido por
+        <a href="https://www.linkedin.com/in/brunnomanduca" 
+           target="_blank"
+           rel="noopener"
+           class="inline-flex items-center justify-center gap-2 text-blue-600
+              dark:text-blue-400 hover:underline p-0 h-auto"
+           atia-label="Brunno Manduca 🤘 ">
+           <span>Brunno Manduca 🤘</span>
+           <svg xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+            >
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 
+                      2.239 5 5 5h14c2.761 0 5-2.239 
+                      5-5v-14c0-2.761-2.239-5-5-5zm-11 
+                      19h-3v-10h3v10zm-1.5-11.268c-.966 
+                      0-1.75-.784-1.75-1.75s.784-1.75 
+                      1.75-1.75 1.75.784 
+                      1.75 1.75-.784 1.75-1.75 
+                      1.75zm13.5 11.268h-3v-5.604c0-1.337-.026-3.062-1.867-3.062-1.869 
+                      0-2.156 1.46-2.156 2.965v5.701h-3v-10h2.881v1.367h.041c.401-.76 
+                      1.379-1.562 2.838-1.562 3.033 0 3.594 1.996 3.594 
+                      4.59v5.605z"/>
+            </svg>
+        </a>
+      </span>
     </footer>
 
     <!-- LUCIDE ICONS -->

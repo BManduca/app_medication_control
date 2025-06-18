@@ -13,56 +13,73 @@
     <form method="POST" action="{{ url_for('auth.login') }}" @submit="loading = true" novalidate>
       {{ form.hidden_tag() }}
 
-      {{ form_fields.render_field(
-        form.email,
-        label='Email',
-        type='email',
-        placeholder='Digite seu e-mail',
-        autocomplete='email',
-        autofocus=true
-      ) }}
+      <div class="w-full sm:w-64 mx-auto">
+        {{ form_fields.render_field(
+            form.email,
+            label='Email',
+            type='email',
+            placeholder='Digite seu e-mail',
+            autocomplete='email',
+            autofocus=true
+          )
+        }}
+      </div>
 
       <!-- Campo de senha com toogle -->
-      {{ form_fields.render_field(
-        form.password,
-        label='Senha',
-        type='password',
-        placeholder='Digite sua senha',
-        autocomplete='current-password'
-      ) }}
+      <div class="w-full sm:w-64 mx-auto">
+        {{ form_fields.render_field(
+            form.password,
+            label='Senha',
+            type='password',
+            placeholder='Digite sua senha',
+            autocomplete='current-password'
+          )
+        }}
+      </div>
+      
 
-      <!-- Button Login -->
-      {{ buttons.render_button(
-        text='Login',
-        icon='log-in',
-        type='submit',
-        loading=True,
-        loading_text='Entrando..',
-        classes='w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700
-          transition-colors duration-200 font-semibold text-sm sm:text-base
-          focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500'
-      ) }}
+      <div class="w-full sm:w-64 mx-auto m-4">
+        <!-- Button Login -->
+        {{ buttons.render_button(
+            text='Login',
+            icon='log-in',
+            type='submit',
+            loading=True,
+            loading_text='Entrando..',
+            classes='w-full sm:w-64 mx-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700
+              transition-colors duration-200 font-semibold text-sm sm:text-base
+              focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500'
+          ) 
+        }}
+      </div>
     </form>
 
-    <!-- separador -->
-     <div class="relative my-10">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="bg-white dark:bg-gray-800 px-2 text-gray-500">ou</span>
-        </div>
-     </div>
+    <!-- Separador com "ou" no centro da linha -->
+    <div class="w-full sm:w-64 mx-auto my-6">
+      <div class="flex items-center">
+        <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+        <span class="px-3 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">ou</span>
+        <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+      </div>
+    </div>
+    <!-- <div class="flex items-center justify-center my-8">
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+      <span class="px-4 text-sm text-gray-500 dark:text-gray-400">ou</span>
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+    </div> -->
 
-     {{ buttons.render_button(
-      text='Entrar com Google',
-      href=url_for('auth.login_google'),
-      custom_icon='<img src="' ~ url_for("static", filename="../../static/images/icons8-google.svg") ~ '" alt="Google" class="w-5 h-5">',
-      classes='w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded hover:bg-gray-100
-             transition-colors duration-200 font-semibold text-sm sm:text-base
-             focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500
-             dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-800'
-     ) }}
+    <div class="w-full sm:w-64 mx-auto m-4">
+      {{ buttons.render_button(
+        text='Entrar com Google',
+        href=url_for('auth.login_google'),
+        custom_icon='<img src="' ~ url_for("static", filename="../../static/images/icons8-google.svg") ~ '" alt="Google" class="w-5 h-5">',
+        classes='w-full px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded hover:bg-gray-100
+              transition-colors duration-200 font-semibold text-sm sm:text-base
+              focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500
+              dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-800'
+        ) 
+      }}
+    </div>
 
     <div class="flex justify-center items-center gap-4 text-sm mt-4 text-center text-gray-700 dark:text-gray-300">
       <span>Não tem conta?</span>
