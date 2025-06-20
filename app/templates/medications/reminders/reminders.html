@@ -8,8 +8,31 @@
 <div class="max-w-2xl mx-auto p-4">
     <h1 class="text-xl font-bold mb-4">
         Olá, {{ current_user.name }}! 👋<br>
-        <!-- <span class="text-gray-600 text-base">Aqui estão seus lembretes:</span> -->
     </h1>
+
+    <!-- messages flash -->
+    {% include 'partials/_flash_messages.html' %}
+
+    <div class="flex justify-between items-center mt-6 mb-2">
+        <h2 class="text-lg font-semibold">Meus Lembretes atuais</h2>
+    </div>
+
+    <!-- lembretes atuais -->
+    {% if current_reminders %}
+        <div class="mb-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800 shadow">
+            <h3 class="font-semibold text-lg mb-1">🔔 Hora do medicamento!</h3>
+            <ul class="list-disc list-inside text-sm">
+                {% for r in current_reminders %}
+                    <li>
+                        💊 <strong>{{ r.medication.name }}</strong> às <strong>{{ r.time.strftime('%H:%M') }}</strong>
+                        ({{ 'Diário' if r.frequency == 'daily' else 'Semanal' if r.frequency == 'weekly' else 'Único' }})
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <p class="text-gray-600 dark:text-gray-200">Ainda não tem nenhum medicamento próximo ao horário de ser administrado..</p>
+    {% endif %}
 
     <div class="flex justify-between items-center mt-6 mb-2">
         <h2 class="text-lg font-semibold">Meus Lembretes</h2>
@@ -20,13 +43,15 @@
             classes='bg-green-600 text-white px-4 py-2 rounded text-sm'
         ) }}
     </div>
-    
+
+    <!-- lista de lembretes -->
     <ul class="mt-2 space-y-2">
         {% if reminders %}
             {% for rem in reminders %}
-                <li class="border p-2 rounded shadow-sm bg-gray-50 dark:bg-gray-500 flex justify-between items-center">
-                    <span>
-                        💊 <span class="text-gray-700 dark:text-gray-200">{{ rem.medication.name }} </span> às <strong class="text-gray-600 dark:text-gray-200">{{ rem.time.strftime('%H:%M') }}</strong>
+                <li class="border p-4 rounded shadow-sm bg-gray-50 dark:bg-gray-500 flex justify-between items-center">
+                    <div class="flex-1 pr-4">
+                        💊 <span class="text-gray-700 dark:text-gray-200">{{ rem.medication.name }} </span> às 
+                        <strong class="text-gray-600 dark:text-gray-200">{{ rem.time.strftime('%H:%M') }}</strong>
 
                         {% if rem.frequency == 'daily' %}
                             => 🔁 <span class="text-sm text-gray-600 dark:text-gray-200">Diariamente</span>
@@ -41,9 +66,9 @@
                         {% else %}
                             <span class="text-gray-500 dark:text-gray-400">(Inativo)</span>
                         {% endif %}
-                    </span>
+                    </div>
                     <!-- espaço para botões de editar e excluir -->
-                    <div class="flex gap-2">
+                    <div class="flex flex-col md:flex-row gap-2 items-start sm:items-center">
                         {{ buttons.render_button(
                             text='Editar',
                             href=url_for('medication.edit_reminder', reminder_id=rem.id),
@@ -56,6 +81,7 @@
                             method="POST"
                             action="{{ url_for('medication.delete_reminder', reminder_id=rem.id) }}"
                             onsubmit="return confirm('Tem certeza que deseja excluir este lembrete?');"
+                            class="inline-block"
                         >
                             {{ buttons.render_button(
                                 text='Excluir',
@@ -72,4 +98,65 @@
         {% endif %}
     </ul>
 </div>
+
+<!-- 🔔 Script AJAX para checar lembretes -->
+<script>
+    function showToast(message) {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = `
+            <div
+                role="alert"
+                class="alert flex items-center justify-between gap-4 px-4 py-3 text-sm
+                text-white rounded shadow-md transition duration-500 ease-in-out transform bg-green-500"
+                style="position: fixed; top: 1rem; right: 1rem; z-index: 9999;"
+            >
+                <div class="flex items-center gap-2">
+                    <svg class="icon" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"
+                        style="width: 1.25rem; height: 1.25rem; color: white;">
+                        <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>${message}</span>
+                </div>
+                <button class="close-alert text-white hover:text-gray-200 focus:outline-none" aria-label="Fechar alerta">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(wrapper);
+
+        const alert = wrapper.querySelector('.alert');
+        wrapper.querySelector('.close-alert').onclick = () => {
+            alert.classList.add('opacity-0', '-translate-y-3');
+            setTimeout(() => wrapper.remove(), 500);
+        };
+
+        setTimeout(() => {
+            if (alert) {
+                alert.classList.add('opacity-0', '-translate-y-3');
+                setTimeout(() => wrapper.remove(), 500);
+            }
+        }, 5000);
+    }
+
+    function checkReminders() {
+        fetch('{{ url_for("medication.check_reminders_ajax") }}')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(reminder => {
+                    showToast(`💊 Hora de tomar: ${reminder.medication} às ${reminder.time}`);
+                });
+            });
+    }
+
+    // chamando o CheckReminders a cada x minutos
+    // 1min -> 60000ms | 5mins -> 300000ms | 10mins -> 600000 |
+    setInterval(checkReminders, 60000);
+
+    // Executa ao carregar a página também
+    checkReminders();
+</script>
 {% endblock %}

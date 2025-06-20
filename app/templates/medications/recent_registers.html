@@ -21,7 +21,7 @@
                             <strong>{{ reg.medication.name }}</strong> - {{ reg.amount_administered or reg.medication.dosage }}
                         </div>
                         <div class="text-sm text-gray-600 dark:text-gray-300">
-                            {{ reg.date_time.strftime('%d/%m/%Y %H:%M') }}
+                            {{ reg.local_time.strftime('%d/%m/%Y %H:%M') }}
                         </div>
                     </div>
                     {% if reg.observation %}

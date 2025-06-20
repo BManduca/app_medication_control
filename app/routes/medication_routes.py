@@ -1,11 +1,13 @@
 import csv
 import io
-from datetime import date, datetime, timezone
-from flask import Blueprint, abort, render_template, redirect, url_for, flash, request, Response
+from datetime import datetime, timezone, timedelta
+from flask import Blueprint, abort, render_template, redirect, url_for, flash, request, Response, jsonify
 from flask_login import login_required, current_user
+import pytz
 from app import db
 from app.models import Medication, MedicationReminder, Register
 from app.forms import EditRegisterForm, FilterDateForm, MedicationForm, NameFilterForm, RegisterUseMedicationForm, ReminderForm
+from app.utils import convert_utc_to_fuso_brasilia
 
 medication_bp = Blueprint('medication', __name__)
 
@@ -189,12 +191,16 @@ def view_history():
 
     # filtro por data
     if start_date:
-        query = query.filter(Register.date_time >= start_date)
+        start_datetime = datetime.combine(start_date, datetime.min.time())
+        start_datetime_bras = pytz.timezone('America/Sao_Paulo').localize(start_datetime)
+        start_datetime_utc = start_datetime_bras.astimezone(pytz.utc)
+        query = query.filter(Register.date_time >= start_datetime_utc)
 
     if end_date:
-        # ajustando hora final para 23:59:59 do dia
-        end_date = datetime.combine(end_date, datetime.max.time())
-        query = query.filter(Register.date_time <= end_date)
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        end_datetime_bras = pytz.timezone('America/Sao_Paulo').localize(end_datetime)
+        end_datetime_utc = end_datetime_bras.astimezone(pytz.utc)
+        query = query.filter(Register.date_time <= end_datetime_utc)
 
     # filtro por medicamento especifico
     if medication_id:
@@ -226,6 +232,10 @@ def view_history():
     pagination = query.order_by(Register.date_time.desc()).paginate(page=page, per_page=10, error_out=False)
     registers = pagination.items
 
+    # conversão para horário de Brasília
+    for reg in registers:
+        reg.date_time_local = convert_utc_to_fuso_brasilia(reg.date_time)
+
     # conversão de data para o formato 'DD/MM/YYYY' somente para exibição em filtros
     start_date_str = start_date.strftime('%d/%m/%Y') if start_date else ''
     end_date_str = end_date.strftime('%d/%m/%Y') if end_date else ''
@@ -250,6 +260,7 @@ def export_history_csv():
 
     start_date = form.start_date.data
     end_date = form.end_date.data
+    medication_id = request.args.get('medication')
 
     # validando: data final não pode ser anterior a data inicial
     if start_date and end_date and start_date > end_date:
@@ -270,6 +281,9 @@ def export_history_csv():
     if end_date:
         # filtrar todos os registros até a data(end_date)
         query = query.filter(Register.date_time <= end_date)
+    
+    if medication_id:
+        query = query.filter(Register.date_time.desc()).all()
 
     registers = query.order_by(Register.date_time.desc()).all()
 
@@ -346,23 +360,36 @@ def recent_registers():
     # form = FilterDateForm(request.args)
     page = request.args.get('page', 1, type=int)
 
-    # selecionando sempre o dia atual
-    date_chosen = date.today()
+    now_utc = datetime.now(timezone.utc)
+    now_timezone_brasilia = convert_utc_to_fuso_brasilia(now_utc)
+
+    # inicio e fim do dia em Brasília
+    start_today_bras = now_timezone_brasilia.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_today_bras = now_timezone_brasilia.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    # convertendo inicio e fim do dia para UTC
+    start_day_utc = start_today_bras.astimezone(pytz.utc)
+    end_day_utc = end_today_bras.astimezone(pytz.utc)
 
     # buscanso apenas registros do usuário e do dia atual
     recent_register_query = Register.query \
         .filter(Register.user_id == current_user.id) \
-        .filter(db.func.date(Register.date_time) == date_chosen) \
+        .filter(Register.date_time >= start_day_utc) \
+        .filter(Register.date_time <= end_day_utc) \
         .order_by(Register.date_time.desc())
     
     pagination = recent_register_query.paginate(page=page, per_page=10)
     recent_registers_medications = pagination.items
 
+    # convertendo data/hora de UTC para Brasilia somente para fim de exibição
+    for reg in recent_registers_medications:
+        reg.local_time = convert_utc_to_fuso_brasilia(reg.date_time)
+
     return render_template(
         'medications/recent_registers.html',
         recent_registers=recent_registers_medications,
         pagination=pagination,
-        date_chosen=date_chosen
+        date_chosen=now_timezone_brasilia.date()
     )
 
 @medication_bp.route('/registers/<int:reg_id>/edit', methods=['GET', 'POST'])
@@ -398,7 +425,7 @@ def delete_register(reg_id):
     medication = Medication.query.get(register.medication_id)
     if not medication:
         flash('Medicamento não encontrado.', 'danger')
-        return redirect(url_for('medication.recent_registers'))
+        return redirect(url_for('medication.list_medications'))
 
     # Ajusta estoque revertendo o uso deletado
     try:
@@ -413,17 +440,35 @@ def delete_register(reg_id):
     except Exception as e:
         db.session.rollback()
         flash(f'Erro ao excluir registro: {str(e)}', 'danger')
-        return redirect(url_for('medication.recent_registers'))
+        return redirect(url_for('medication.list_medications'))
 
     flash('Registro excluído com sucesso!', 'info')
-    return redirect(url_for('medication.recent_registers'))
+    return redirect(url_for('medication.list_medications'))
 
 @medication_bp.route('/reminders', methods=['GET', 'POST'])
 @login_required
 def reminders():
-    # listando todos os lembretes
-    reminders_medications = MedicationReminder.query.filter_by(user_id=current_user.id).order_by(MedicationReminder.time).all()
-    return render_template('medications/reminders/reminders.html', reminders=reminders_medications)
+    now_utc = datetime.now(timezone.utc)
+    now_timezone_brasilia = convert_utc_to_fuso_brasilia(now_utc).time()
+
+    # Busca lembretes ativos para o horário atual (exemplo com margem de 5 minutos)
+    reminders_now = MedicationReminder.query.filter(
+        MedicationReminder.user_id == current_user.id,
+        MedicationReminder.active.is_(True),
+        MedicationReminder.time.between(
+            (datetime.combine(datetime.today(), now_timezone_brasilia) - timedelta(minutes=5)).time(),
+            (datetime.combine(datetime.today(), now_timezone_brasilia) + timedelta(minutes=5)).time()
+        )
+    ).all()
+
+    # Busca todos os lembretes do usuário
+    all_reminders = MedicationReminder.query.filter_by(user_id=current_user.id).all()
+
+    return render_template(
+        'medications/reminders/reminders.html',
+        current_reminders=reminders_now,
+        reminders=all_reminders
+    )
 
 @medication_bp.route('/reminders/add', methods=['GET', 'POST'])
 @login_required
@@ -493,6 +538,26 @@ def delete_reminder(reminder_id):
     db.session.commit()
     flash('Lembrete excluído com sucesso!', 'success')
     return redirect(url_for('medication.reminders'))
+
+@medication_bp.route('/reminders/check', methods=['GET'])
+@login_required
+def check_reminders_ajax():
+    now_utc = datetime.now(timezone.utc)
+    now_timezone_brasilia = convert_utc_to_fuso_brasilia(now_utc).time()
+
+    reminders_now = MedicationReminder.query.filter(
+        MedicationReminder.user_id == current_user.id,
+        MedicationReminder.active.is_(True),
+        MedicationReminder.time.between(
+            (datetime.combine(datetime.today(), now_timezone_brasilia) - timedelta(minutes=5)).time(),
+            (datetime.combine(datetime.today(), now_timezone_brasilia) + timedelta(minutes=5)).time()
+        )
+    ).all()
+
+    return jsonify([
+        {"medication": rem.medication.name, "time": rem.time.strftime("%H:%M")}
+        for rem in reminders_now
+    ])
 
 # rota para teste.
 @medication_bp.route('/recent-mock')

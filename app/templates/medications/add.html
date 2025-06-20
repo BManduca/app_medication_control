@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded px-6 py-6 mt-10">
-  <h1 class="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-800 dark:text-gray-100">
+  <h1 class="text-xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-800 dark:text-gray-100">
     <i data-lucide="plus" class="w-5 h-5" aria-hidden="true"></i>
     <i data-lucide="pill" class="w-5 h-5" aria-hidden="true"></i>
     Adicionar Medicamento
@@ -27,15 +27,6 @@
     {{ form_fields.render_field(form.instructions, label='Instruções', placeholder='Observações importantes ou instruções') }}
 
     <div class="flex justify-between items-center pt-6">
-      <!-- bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded flex items-center gap-1 -->
-      {{ buttons.render_button(
-        text='Cancelar',
-        href=url_for('medication.list_medications'),
-        icon='x',
-        classes='bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
-          text-gray-700 dark:text-gray-100 font-semibold px-6 py-2 rounded'
-      ) }}
-
       <div x-data="{ loading: false }">
         {{ buttons.render_button(
           text='Salvar',
@@ -44,6 +35,15 @@
           classes='bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded'
         ) }}
       </div>
+
+      <!-- bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded flex items-center gap-1 -->
+      {{ buttons.render_button(
+        text='Cancelar',
+        href=url_for('medication.list_medications'),
+        icon='x',
+        classes='bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+          text-gray-700 dark:text-gray-100 font-semibold px-6 py-2 rounded'
+      ) }}
     </div>
   </form>
 </div>
