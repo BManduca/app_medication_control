@@ -25,3 +25,11 @@ class DevConfig(Config):
 class ProdConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
+
+class TestConfig:
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    WTF_CSRF_ENABLED = False
+    SECRET_KEY = "test-secret-key"
+    GOOGLE_CLIENT_ID = "fake-client-id"
+    GOOGLE_CLIENT_SECRET = "fake-client-secret"

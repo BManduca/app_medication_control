@@ -16,18 +16,25 @@ login_manager.login_message_category = 'warning' # categoria do flash
 
 # função é responsável por criar e configurar a aplicação Flask, com banco de dados, 
 # autenticação, rotas e configurações gerais
-def create_app(testing=False):
+def create_app(testing=False, config_class=None):
     app = Flask(__name__)
 
-    # se testing=True, sobrescreve as configs para testes
-    if testing:
+    # caso o config_class seja passado explicitamente
+    if config_class:
+        app.config.from_object(config_class)
+
+    # Se Testing=Tre, configuração inline para testes (mínimas)
+    elif testing:
         app.config.update({
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "WTF_CSRF_ENABLED": False,  # Desativa CSRF para testes
+            "GOOGLE_CLIENT_ID": "fake-client-id",
+            "GOOGLE_CLIENT_SECRET": "fake-client-secret"
         })
+    # Configuração baseada no ambiente (dev/prod)
     else:
-        # carregando configurações do arquivo config.py | define se é dev ou prod
+        # carregando configurações do arquivo config.py
         env = os.getenv('FLASK_ENV', 'development')
         if env == 'production':
             app.config.from_object(ProdConfig)

@@ -1,11 +1,12 @@
 import pytest
 from app import create_app, db
 from app.models import User, Medication
+from config import TestConfig
 
 # “fixture” — uma base reutilizável que pode ser passada para os testes
 @pytest.fixture
 def app():
-    app = create_app(testing=True)
+    app = create_app(config_class=TestConfig)
     
     with app.app_context():
         db.create_all()

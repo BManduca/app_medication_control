@@ -38,7 +38,7 @@ def test_login_wrong_password(client, app):
 
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert 'senha inválidos' in html or 'senha incorreta' in html
+    assert 'senha não cadastrada ou incorreta' in html.lower()
 
 def test_dashboard_requires_login(client):
     response = client.get('/dashboard', follow_redirects=True)
@@ -102,7 +102,7 @@ def test_login_no_existent_user(client):
 
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert 'E-mail ou senha inválidos' in html
+    assert 'e-mail não cadastrado ou inválido' in html.lower()
 
 def test_register_empty_field(client):
     response = client.post('/auth/register', data={

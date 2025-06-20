@@ -76,9 +76,9 @@ def login():
                 flash('Login realizado com sucesso!', 'success')
                 return redirect(next_page or url_for('user_dashboard.dashboard'))
             else:
-                flash('Senha inválida! Tente novamente.', 'danger')
+                flash('Senha não cadastrada ou incorreta! Tente novamente.', 'danger')
         else:
-            flash('E-mail inválido! Tente novamente.', 'danger')
+            flash('E-mail não cadastrado ou inválido! Tente novamente.', 'danger')
         
     return render_template('auth/login.html', form=form)
 
