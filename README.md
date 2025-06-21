@@ -94,7 +94,7 @@ python3 app.py
 # acessar aplicação: http://localhost:5000
 ```
 
-** 🔐 Para login via Google, crie um projeto no [Google Cloud Console](https://console.cloud.google.com), ative o OAuth 2.0 e adicione as credenciais nos arquivos `.env` **
+**🔐 Para login via Google, crie um projeto no [Google Cloud Console](https://console.cloud.google.com), ative o OAuth 2.0 e adicione as credenciais nos arquivos `.env`**
 
 ### 6. Rodando com Docker (opcional)
 
