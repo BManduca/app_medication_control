@@ -122,7 +122,8 @@ app/
 
 ## 👨🏻‍💻 Autor
 
-### [!Linkedin((https://img.shields.io/badge/LinkedIn--blue?style=social&logo=linkedin)](https://www.linkedin.com/in/brunnomanduca/)**Brunno Manduca** - Desenvolvedor Web, buscando resolver problemas do dia a dia com soluções práticas e reais.
+[![LinkedIn](https://img.shields.io/badge/LinkedIn--blue?style=social&logo=linkedin)](https://www.linkedin.com/in/brunnomanduca/)  
+**Brunno Manduca** – Desenvolvedor Web, buscando resolver problemas do dia a dia com soluções práticas e reais.
 
 ---
 
