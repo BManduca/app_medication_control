@@ -1,0 +1,103 @@
+{% import 'partials/_buttons.html' as buttons %}
+
+{% macro render_medication_card(reg) %}
+    {% set estoque = reg.stock %}
+    <div class="bg-white dark:bg-gray-800 border-l-4 border-blue-600 shadow-sm hover:shadow-md rounded-xl p-4 transition-all h-full flex flex-col justify-between">
+        
+        <!-- Título e Data -->
+        <div class="flex justify-between items-start">
+            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ reg.name }}</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+                {{ reg.date_time.strftime('%d/%m/%Y %H:%M') if reg.date_time }}
+            </span>
+        </div>
+
+        <!-- Descrição e Observações -->
+        <div class="mt-2">
+            {% if reg.description %}
+                <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{{ reg.description }}</p>
+            {% endif %}
+            {% if reg.observation %}
+                <p class="text-sm text-gray-500 dark:text-gray-400 italic mt-1 line-clamp-2">{{ reg.observation }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Hora -->
+        {% if reg.hour %}
+            <div class="flex flex-wrap mt-3 gap-1">
+                <span class="bg-blue-100 dark:bg-blue-800 dark:text-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
+                    {{ reg.hour.strftime('%H:%M') }}
+                </span>
+            </div>
+        {% endif %}
+
+        <!-- Dosagem e Estoque -->
+        <div class="mt-4 flex justify-between items-center text-sm text-gray-700 dark:text-gray-300">
+            <div>
+                <span class="font-medium">Dosagem:</span> {{ reg.dosage }}
+            </div>
+            <div>
+                <span class="font-medium">Estoque:</span>
+                <span class="text-sm px-2 py-1 rounded font-semibold
+                    {% if estoque == 0 %}
+                        bg-red-100 text-red-800
+                    {% elif estoque < 5 %}
+                        bg-yellow-100 text-yellow-800
+                    {% else %}
+                        bg-green-100 text-green-800
+                    {% endif %}
+                ">
+                    {% if estoque == 0 %}
+                        Crítico ({{ estoque }})
+                    {% elif estoque < 5 %}
+                        Baixo ({{ estoque }})
+                    {% else %}
+                        OK ({{ estoque }})
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Validade -->
+        {% if reg.expiration_date %}
+            <div class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                <span class="font-medium">Validade:</span> {{ reg.expiration_date.strftime('%d/%m/%Y') }}
+            </div>
+        {% endif %}
+
+        <!-- Ações -->
+        <div class="flex flex-wrap gap-2 mt-4">
+            {{ buttons.render_button(
+                text='Editar',
+                href=url_for('medication.edit_medication', med_id=reg.id),
+                icon='pencil',
+                classes="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-sm"
+            ) }}
+
+            <form action="{{ url_for('medication.delete_medication', med_id=reg.id) }}" 
+                  method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este medicamento?');">
+                <div x-data="{ loading: false }">
+                    {{ buttons.render_button(
+                        text='Excluir',
+                        type='submit',
+                        icon='trash-2',
+                        classes="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm"
+                    ) }}
+                </div>
+            </form>
+
+            <form action="{{ url_for('medication.deactivate_medication', med_id=reg.id) }}" method="POST"
+                  onsubmit="return confirm('Deseja realmente desativar este medicamento?');">
+                <div x-data="{ loading: false }">
+                    {{ buttons.render_button(
+                        text='Desativar',
+                        type='submit',
+                        icon='ban',
+                        classes="bg-gray-500 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                    ) }}
+                </div>
+            </form>
+        </div>
+
+    </div>
+{% endmacro %}

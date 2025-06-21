@@ -46,6 +46,7 @@ class Medication(db.Model):
     stock = db.Column(db.Float, default=0.0)
     cont_total_use_register = db.Column(db.Integer, default=0)
     instructions = db.Column(db.Text, nullable=True)
+    active = db.Column(db.Boolean, default=True, nullable=False)
 
     registers = db.relationship('Register', backref='medication', lazy=True)
 

@@ -32,14 +32,18 @@ def list_medications():
     if name_filter:
         query = query.filter(Medication.name.ilike(f"%{name_filter}%"))
 
-    query = query.order_by(Medication.name.asc())
+    # Medicamentos ativos
+    active_query = query.filter(Medication.active.is_(True)).order_by(Medication.name.asc())
+    active_medications = active_query.paginate(page=page, per_page=10)
 
-    # Paginação
-    paginated_medications = query.paginate(page=page, per_page=10)
+    # Medicamentos inativos
+    inactive_query = query.filter(Medication.active.is_(False)).order_by(Medication.name.asc())
+    inactive_medications = inactive_query.paginate(page=page, per_page=10)
 
     return render_template(
         "medications/list.html",
-        registers=paginated_medications,
+        active_medications=active_medications,
+        inactive_medications=inactive_medications,
         name_filter=name_filter,
         name_filter_form=form
     )
@@ -352,6 +356,34 @@ def delete_medication(med_id):
     db.session.delete(medication)
     db.session.commit()
     flash("Medicamento removido com sucesso!", "info")
+    return redirect(url_for('medication.list_medications'))
+
+@medication_bp.route('/medications/deactivate/<int:med_id>', methods=['POST'])
+@login_required
+def deactivate_medication(med_id):
+    medication = Medication.query.get_or_404(med_id)
+
+    # Verifica se o medicamento pertence ao usuário
+    if medication.user_id != current_user.id:
+        abort(403)
+
+    medication.active = False
+    db.session.commit()
+    flash('Medicamento desativado com sucesso!', 'success')
+    return redirect(url_for('medication.list_medications'))
+
+@medication_bp.route('/medications/activate/<int:med_id>', methods=['POST'])
+@login_required
+def activate_medication(med_id):
+    medication = Medication.query.get_or_404(med_id)
+
+    # Verifica se o medicamento pertence ao usuário
+    if medication.user_id != current_user.id:
+        abort(403)
+
+    medication.active = True
+    db.session.commit()
+    flash('Medicamento reativado com sucesso!', 'success')
     return redirect(url_for('medication.list_medications'))
 
 @medication_bp.route('/recent-registers')
