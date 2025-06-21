@@ -15,36 +15,44 @@
 - **Flask-BCrypt** - Criptografia de senhas
 - **Flask-SQLAlchemy** - ORM para banco de dados
 - **WTForms** - Formulários e validação
+- **python-dotenv** – Variáveis de ambiente (.env)
 
 ### 💾 Banco de Dados
 
-- **SQLite** - Banco de dados leve e embutido
+- **SQLite** – Banco leve e embutido (pode ser substituído por outros via SQLAlchemy)
 
 ### 🎨 Front-end
 
 - **HTML + Jinja2** - Templates dinâmicos
-- **Tailwind CSS** - Estilização moderna e responsiva
+- **Tailwind CSS** - Estilização moderna, responsiva e com componentes reutilizáveis
+- **Lucide Icons** – Ícones elegantes para UI
 
 ### 🛠️ Ferramentas de Suporte
 
-- **Git / GitHub** - Versionamento e colaboração
-- **venv** - Ambiente virtual Python
+- **Git + GitHub** – Versionamento e colaboração
+- **Docker** – Containerização da aplicação
+- **Render** – Deploy com Gunicorn + Nginx
 - **requirements.txt** - Lista de dependências
+- **venv** / **.env.dev / .env.prod** – Configurações seguras
 
 ## 🧪 Funcionalidades
 
-- ✅ **Registro e login de usuários**
-- ✅ **Criptografia de senhas**
-- ✅ **Autenticação de sessões com Flask-Login**
-- ✅ **Cadastro, edição e remoção de medicamentos**
-- ✅ **Listagem de medicamentos**
-- ✅ **Layout responsivo com Tailwind CSS**
+- ✅ **Cadastro e login de usuários** (tradicional e Google OAuth)
+- ✅ **Criptografia de senhas** com Bcrypt
+- ✅ **Cadastro, edição, exclusão e listagem de medicamentos**
+- ✅ **Sistema de lembretes de medicamentos por horário e frequência**
+- ✅ **Histórico de uso com filtros por período**
+- ✅ **Exportação de histórico (CSV)**
+- ✅ **Validações e mensagens de erro personalizadas**
+- ✅ **Layout moderno e responsivo (Tailwind CSS)**
+- ✅ **Testes automatizados (unitários, integração e autenticação)**
+- ✅ **Deploy com Docker**
 
 ---
 
 ## ⚙️ Como executar o projeto
 
-### 1. Clonar o repositório
+### 1. Clone o repositório
 
 ```
 git clone https://github.com/BManduca/app_medication_control.git
@@ -70,7 +78,10 @@ source nome_do_seu_ambiente/bin/activate
 pip3 install -r requirements.txt
 ```
 
-### 4. Criando o banco de dados
+### 4. Crie o banco de dados local
+* Com o ambiente virtual ativado, instale todas as dependências
+* execute o comando: python3 create_db.py
+* Isso criará todas as tabelas definidas em app/models.py no banco de dados configurado (como SQLite por padrão)
 
 ```
 python3 create_db.py
@@ -83,14 +94,40 @@ python3 app.py
 # acessar aplicação: http://localhost:5000
 ```
 
+** 🔐 Para login via Google, crie um projeto no [Google Cloud Console](https://console.cloud.google.com), ative o OAuth 2.0 e adicione as credenciais nos arquivos `.env` **
+
+### 6. Rodando com Docker (opcional)
+
+```
+docker build -t app_medication_control
+docker run -p 5000:5000 app_medication_control
+# acesse: http://localhost:5000
+```
+
+## 📁 Estrutura do Projeto
+
+```
+app/
+├── auth/                  # Rotas de autenticação
+├── models/                # Modelos SQLAlchemy
+├── templates/             # Templates HTML (Jinja2)
+├── static/                # Arquivos estáticos (Tailwind, ícones)
+├── forms/                 # Formulários Flask-WTF
+├── routes/                # Rotas de medicamentos, lembretes, histórico
+├── utils/                 # Funções auxiliares
+├── tests/                 # Testes automatizados (pytest)
+```
+
+---
+
+## 👨🏻‍💻 Autor
+
+### [!Linkedin((https://img.shields.io/badge/LinkedIn--blue?style=social&logo=linkedin)](https://www.linkedin.com/in/brunnomanduca/)**Brunno Manduca** - Desenvolvedor Web, buscando resolver problemas do dia a dia com soluções práticas e reais.
+
 ---
 
 ## 📝 Licença
 
-**Este projeto está sob a licença MIT. Sinta-se livre para usar, estudar e contribuir.**
+Este projeto está licenciado sob a **Licença MIT** – sinta-se à vontade para usar, estudar e contribuir!
 
 ---
-
-## Autor
-
-### [Linkedin Brunno Manduca](https://www.linkedin.com/in/brunnomanduca/)
