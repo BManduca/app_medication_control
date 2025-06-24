@@ -27,5 +27,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  tailwind:
+    image: node:18
+    container_name: tailwind-watcher
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "npm install && npm run dev"
+
 volumes:
   postgres_data:

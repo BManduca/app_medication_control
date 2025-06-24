@@ -2,8 +2,23 @@
 
 {% macro render_medication_card(reg) %}
     {% set estoque = reg.stock %}
-    <div class="bg-white dark:bg-gray-800 border-l-4 border-blue-600 shadow-sm hover:shadow-md rounded-xl p-4 transition-all h-full flex flex-col justify-between">
-        
+    <div class="bg-white dark:bg-gray-800 border-l-4
+                {% if not reg.active %}
+                    border-gray-500
+                {% else %}
+                    border-blue-600
+                {% endif %}
+                shadow-sm hover:shadow-md rounded-xl p-4 transition-all h-full flex flex-col justify-between relative">
+
+        <!-- Badge para card desativado -->
+        <!-- {% if not reg.active %}
+            <div class="absolute top-2 right-2">
+                <span class="bg-gray-700 text-white text-xs px-2 py-1 rounded-full font-semibold shadow">
+                    Desativado
+                </span>
+            </div>
+        {% endif %} -->
+
         <!-- Título e Data -->
         <div class="flex justify-between items-start">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ reg.name }}</h2>
@@ -66,34 +81,37 @@
         {% endif %}
 
         <!-- Ações -->
-        <div class="flex flex-wrap gap-2 mt-4">
-            {{ buttons.render_button(
-                text='Editar',
-                href=url_for('medication.edit_medication', med_id=reg.id),
-                icon='pencil',
-                classes="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-sm"
-            ) }}
+        <div class="w-full flex flex-col md:flex-row justify-between gap-2 mt-4">
+            <!-- botão alinhado a esquerda em telas grandes -->
+            <div class="w-full md:w-auto">
+                {{ buttons.render_button(
+                    text='Editar',
+                    href=url_for('medication.edit_medication', med_id=reg.id),
+                    icon='pencil',
+                    classes="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-2 rounded text-sm"
+                ) }}
+            </div>
 
-            <form action="{{ url_for('medication.delete_medication', med_id=reg.id) }}" 
-                  method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este medicamento?');">
+            <!-- Alternando de acordo com medicamento Ativado/Desativado -->
+            <form action="{{
+                url_for(
+                    'medication.deactivate_medication' if reg.active else 'medication.activate_medication',
+                    med_id=reg.id
+                )
+            }}" 
+            method="POST"
+            onsubmit='return confirm("Deseja realmente {% if reg.active %}desativar{% else %}ativar{% endif %} este medicamento?");'
+            class="w-full md:w-auto">
                 <div x-data="{ loading: false }">
                     {{ buttons.render_button(
-                        text='Excluir',
+                        text=('Desativar' if reg.active else 'Ativar'),
                         type='submit',
-                        icon='trash-2',
-                        classes="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm"
-                    ) }}
-                </div>
-            </form>
-
-            <form action="{{ url_for('medication.deactivate_medication', med_id=reg.id) }}" method="POST"
-                  onsubmit="return confirm('Deseja realmente desativar este medicamento?');">
-                <div x-data="{ loading: false }">
-                    {{ buttons.render_button(
-                        text='Desativar',
-                        type='submit',
-                        icon='ban',
-                        classes="bg-gray-500 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                        icon=('ban' if reg.active else 'check-circle'),
+                        classes=(
+                            'bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm'
+                            if reg.active else
+                            'bg-green-500 hover:bg-green-600 text-white px-3 py-2 text-sm'
+                        )
                     ) }}
                 </div>
             </form>

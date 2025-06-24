@@ -369,7 +369,7 @@ def deactivate_medication(med_id):
 
     medication.active = False
     db.session.commit()
-    flash('Medicamento desativado com sucesso!', 'success')
+    flash('Medicamento arquivado com sucesso!', 'success')
     return redirect(url_for('medication.list_medications'))
 
 @medication_bp.route('/medications/activate/<int:med_id>', methods=['POST'])
@@ -385,6 +385,26 @@ def activate_medication(med_id):
     db.session.commit()
     flash('Medicamento reativado com sucesso!', 'success')
     return redirect(url_for('medication.list_medications'))
+
+@medication_bp.route('/medications/inactive')
+@login_required
+def inactive_medication_list():
+    form = NameFilterForm(request.args)
+    page = request.args.get('page', 1, type=int)
+
+    name_filter = form.name.data or ''
+
+    # Filtro por nome (case-insensitive)
+    if name_filter:
+        query = query.filter(Medication.name.ilike(f"%{name_filter}%"))
+
+    inactive_medications = Medication.query.filter_by(user_id=current_user.id, active=False).paginate(page=page, per_page=6)
+    return render_template(
+        'medications/inactive_list.html',
+        inactive_medications=inactive_medications,
+        name_filter=name_filter,
+        name_filter_form=form
+    )
 
 @medication_bp.route('/recent-registers')
 @login_required
@@ -442,7 +462,7 @@ def edit_register(reg_id):
 
         db.session.commit()
         flash('Registro atualizado com sucesso!', 'success')
-        return redirect(url_for('medication.recent_registers'))
+        return redirect(url_for('medication.view_history'))
     
     return render_template('medications/edit_register.html', form=form, register=register)
 

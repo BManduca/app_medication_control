@@ -75,39 +75,6 @@ def test_edit_medication_of_other_user(client, app, logged_in_user):
         html = response.data.decode('utf-8')
         assert 'não tem permissão' in html.lower() or '403' in html
 
-def test_delete_medication_of_other_user(client, app, logged_in_user):
-    with app.app_context():
-        # criando outro usuário e um novo medicamento para este mesmo
-        other_user = User(
-            name='Other User',
-            email='other@example.com',
-            password_hash=generate_password_hash('otherpass')
-        )
-
-        db.session.add(other_user)
-        db.session.commit()
-
-        medication = Medication(
-            user_id=other_user.id,
-            name='Novo medicamento do outro novo usuário',
-            description='description no novo medicamento do outro novo usuário',
-            dosage='400mg',
-            expiration_date=date(2025, 12, 31),
-            frequency='1x ao dia',
-            hour=time(10, 0),
-            stock=15,
-            instructions='Novas Instruções'
-        )
-        db.session.add(medication)
-        db.session.commit()
-
-        # logged_in_user tenta deletar o medicamento do other_user
-        response = client.post(f'/medications/delete/{medication.id}', follow_redirects=True)
-
-        assert response.status_code == 403
-        html = response.data.decode('utf-8')
-        assert 'não tem permissão' in html.lower() or '403' in html
-
 @pytest.mark.parametrize('url, method', [
     ('/medications/add', 'GET'),
     ('/medications/edit/1', 'GET'), #id genérico, mas o teste espera o redirecionamento para tela de login

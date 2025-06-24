@@ -1,13 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./app/templates/**/*.html", // inclui todos os arquivos html em subpastas
-    "./app/templates/**/**/*.html" // segurança extra para subpastas mais profundas
+    "./app/templates/**/*.{html,jinja,jinja2}", // captura arquivos Jinja e HTML
+    "./app/**/*.py", // captura strings de classe em rotas ou macros Python
+    "./app/static/js/**/*.js", // se você tiver scripts JS com classes Tailwind
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'custom': '950px', // novo breakpoint para o menu completo
+      }
+    },
   },
   plugins: [],
 }
-

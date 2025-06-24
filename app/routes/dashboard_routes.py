@@ -3,57 +3,65 @@ from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import or_
 
-from app.models import Medication, Register
+from app.models import Medication, Register, MedicationReminder
 
 dashboard_bp = Blueprint('user_dashboard', __name__)
 
 @dashboard_bp.route('/dashboard')
 @login_required
 def dashboard():
-    # Contagem
-    total_registers = Register.query.filter_by(user_id=current_user.id).count()
-    medications_in_stock = Medication.query.filter_by(user_id=current_user.id).filter(Medication.stock > 0).count()
 
-    # Últimos registros
+    # Contagem de medicamentos ativos com estoque > 0
+    medications_in_stock = Medication.query.filter_by(user_id=current_user.id, active=True).filter(Medication.stock > 0).count()
+
+    # Total de registros de uso dos medicamentos
+    total_registers = Register.query.join(Medication).filter(Medication.user_id==current_user.id).count()
+
+    # Últimos registros de uso (os 5 mais recentes)
     recent_registers = (
-        Register.query.filter_by(user_id=current_user.id)
+        Register.query.join(Medication)
+        .filter(Medication.user_id == current_user.id)
         .order_by(Register.date_time.desc())
         .limit(5)
         .all()
     )
 
-    # lembretes
+    # lembretes para o horário atual e no intervalo de 1 hora
     now = datetime.now().time()
     in_one_hour = (datetime.now() + timedelta(hours=1)).time()
 
+    # Lembretes ativos dentro do próximo intervalor de 1h
     if now < in_one_hour:
-        # faixa simples => 10:00 até 11:00
-        reminders = Medication.query.filter(
+        # faixa simples (ex.: 10:00 até as 11:00)
+        reminders = MedicationReminder.query.join(Medication).filter(
             Medication.user_id == current_user.id,
-            Medication.hour >= now,
-            Medication.hour <= in_one_hour
+            MedicationReminder.active == True,
+            MedicationReminder.time >= now,
+            MedicationReminder.time <= in_one_hour
         ).all()
     else:
-        # faixa passa da 00:00 => 23:30 até 00:30
-        reminders = Medication.query.filter(
+        # Faixa de tempo atravessa a meia-noite (ex.: 23:30 até 00:30)
+        reminders = MedicationReminder.query.join(Medication).filter(
             Medication.user_id == current_user.id,
+            MedicationReminder.active == True,
             or_(
-                Medication.hour >= now,
-                Medication.hour <= in_one_hour
+                MedicationReminder.time >= now,
+                MedicationReminder.time <= in_one_hour
             )
         ).all()
 
-    # medicamentos prestes a vencer próximos 30 dias
+    # medicamentos prestes a vencer próximos 30 dias (apenas ativos)
     due_date = date.today() + timedelta(days=30)
     expiring_medicines = Medication.query.filter(
         Medication.user_id == current_user.id,
         Medication.expiration_date.isnot(None),
         Medication.expiration_date <= due_date,
-        Medication.expiration_date >= date.today()
+        Medication.expiration_date >= date.today(),
+        Medication.active == True
     ).order_by(Medication.expiration_date).all()
 
     # Coletando todos os medicamentos do usuário para apresentar na seção 'Registrar uso'
-    medications = Medication.query.filter_by(user_id=current_user.id).all()
+    medications = Medication.query.filter_by(user_id=current_user.id, active=True).all()
     
     return render_template(
         'dashboard.html',

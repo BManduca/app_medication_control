@@ -12,15 +12,9 @@
     </a>
   {% else %}
     <button type="{{ type }}"
-            class="{{ 'inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ' + classes }}"
+            class="inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed {{ classes }}"
             aria-label="{{ text }}"
             {% if loading %}disabled{% endif %}>
-      <!-- <template x-if="loading">
-        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
-      </template> -->
 
       {% if loading %}
         <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
@@ -35,16 +29,7 @@
         {% endif %}
         <span>{{ text }}</span>
       {% endif %}
-
-      <!-- <template x-if="!loading">
-        {% if custom_icon %}
-          {{ custom_icon|safe }}
-        {% elif icon %}
-          <i data-lucide="{{ icon }}" class="w-5 h-5" aria-hidden="true"></i>
-        {% endif %}
-      </template>
-
-      <span x-text="loading ? '{{ loading_text }}' : '{{ text }}'"></span> -->
+      
     </button>
   {% endif %}
 {% endmacro %}

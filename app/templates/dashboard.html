@@ -59,7 +59,13 @@
   </div>
 
   <!-- Ações principais -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+  <!--
+    •	grid-cols-1: layout empilhado em telas muito pequenas.
+    •	sm:grid-cols-2: duas colunas em telas ≥640px.
+    •	lg:grid-cols-3: três colunas em telas ≥1024px.
+    •	xl:grid-cols-4: quatro colunas em telas ≥1280px (onde realmente cabe!).
+  -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-10">
     <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
       <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Medicamentos</h2>
       <p class="text-gray-600 dark:text-gray-300 mb-4">
@@ -84,16 +90,30 @@
         classes="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
       ) }}
     </div>
+    <!-- Espaço para visualizar medicamentos inativos -->
     <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
-      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Últimos registros</h2>
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Medicamentos Inativos</h2>
       <p class="text-gray-600 dark:text-gray-300 mb-4">
-        Veja os medicamentos utilizados recentemente.
+        Visualize seus medicamentos inativos
       </p>
       {{ buttons.render_button(
-        text='Acessar registros',
-        href=url_for('medication.recent_registers'),
-        icon='clock',
-        classes="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+        text='Medicamentos inativos',
+        href=url_for('medication.inactive_medication_list'),
+        icon='eye-off',
+        classes='bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-2 rounded'
+      ) }}
+    </div>
+    <!-- Espaço com button para criar lembrete -->
+    <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Lembretes</h2>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">
+        Gerencie seus lembretes de medicamentos
+      </p>
+      {{ buttons.render_button(
+        text='Criar lembrete',
+        href=url_for('medication.add_reminder'),
+        icon='bell-plus',
+        classes='bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded'
       ) }}
     </div>
     <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
@@ -127,20 +147,19 @@
         </div>
       </form>
     </div>
-
-    <!-- Espaço com button para criar lembrete -->
     <div class="bg-white dark:bg-gray-700 border-[2px] border-gray-500 dark:border-white shadow rounded-xl p-6">
-      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Lembretes</h2>
+      <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Últimos registros</h2>
       <p class="text-gray-600 dark:text-gray-300 mb-4">
-        Gerencie seus lembretes de medicamentos
+        Veja os medicamentos utilizados recentemente.
       </p>
       {{ buttons.render_button(
-        text='Criar lembrete',
-        href=url_for('medication.add_reminder'),
-        icon='bell-plus',
-        classes='bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded'
+        text='Acessar registros',
+        href=url_for('medication.recent_registers'),
+        icon='clock',
+        classes="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
       ) }}
     </div>
+    
   </div>
 </div>
 {% endblock %}
