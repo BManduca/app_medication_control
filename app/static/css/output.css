@@ -1904,6 +1904,34 @@ video {
   }
 }
 
+/* Padrão: esconde todos inicialmente */
+.app-full-mobile,
+.app-abbr-mid,
+.app-full-desktop {
+  display: none;
+}
+
+/* Mobile: até 767px */
+@media (max-width: 767px) {
+  .app-full-mobile {
+    display: inline;
+  }
+}
+
+/* Médio: 768px a 886px */
+@media (min-width: 768px) and (max-width: 886px) {
+  .app-abbr-mid {
+    display: inline;
+  }
+}
+
+/* Desktop: 887px+ */
+@media (min-width: 887px) {
+  .app-full-desktop {
+    display: inline;
+  }
+}
+
 @media (min-width: 1024px) {
   .lg\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));

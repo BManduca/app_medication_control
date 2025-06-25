@@ -14,7 +14,7 @@
     {% include 'partials/_flash_messages.html' %}
 
     <div class="flex justify-between items-center mt-6 mb-2">
-        <h2 class="text-lg font-semibold">Meus Lembretes atuais</h2>
+        <h2 class="text-lg font-semibold">Meus lembretes atuais</h2>
     </div>
 
     <!-- lembretes atuais -->
@@ -35,7 +35,7 @@
     {% endif %}
 
     <div class="flex justify-between items-center mt-6 mb-2">
-        <h2 class="text-lg font-semibold">Meus Lembretes</h2>
+        <h2 class="text-lg font-semibold">Meus lembretes</h2>
         {{ buttons.render_button(
             text='Novo lembrete',
             href=url_for('medication.add_reminder'),
@@ -73,7 +73,7 @@
                             text='Editar',
                             href=url_for('medication.edit_reminder', reminder_id=rem.id),
                             icon='edit',
-                            classes='text-blue-600 dark:text-blue-300 hover:underline text-sm'
+                            classes='bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm'
                         ) }}
 
                         <!-- formulário para exclusão do lembrete com botão -->
@@ -87,7 +87,7 @@
                                 text='Excluir',
                                 type='submit',
                                 icon='trash-2',
-                                classes='text-red-600 hover:underline text-sm'
+                                classes='bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm'
                             ) }}
                         </form>
                     </div>

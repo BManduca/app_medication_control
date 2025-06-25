@@ -8,9 +8,7 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      screens: {
-        'custom': '950px', // novo breakpoint para o menu completo
-      }
+      screens: {}
     },
   },
   plugins: [],

@@ -91,11 +91,7 @@
               </svg>
             </button>
           </div>
-  
-          <!-- class="flex items-center gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2
-              w-full text-center md:order-1 md:w-auto md:justify-start" -->
-          <!-- class="flex flex-col items-center justify-center w-full md:flex-row md:items-center md:justify-start 
-              md:w-auto gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 order-2 md:order-1" -->
+
           <a
             href="{{ url_for('user_dashboard.dashboard') }}"
             class="flex items-center justify-center gap-2 text-sm sm:text-xl font-bold text-blue-600 dark:text-blue-400 order-2
@@ -112,10 +108,11 @@
                 alt="Logo dark"
                 class="w-10 h-10 hidden dark:block rounded-lg"
             />
-  
-            <!-- Application name - visível somente no desktop -->
-             <!-- class="hidden md:inline" -->
-            <span class="text-xs sm:text-sm md:text-base lg:text-xl truncate max-w-[180px]">AppMedicationControl</span>
+            <!-- <span class="show-abbreviated text-xs sm:text-sm md:text-base lg:text-xl truncate max-w-[180px]">A.M.C</span>
+            <span class="hide-abbreviated text-xs sm:text-sm md:text-base lg:text-xl truncate max-w-[180px]">AppMedicationControl</span> -->
+            <span class="app-full-mobile text-xs sm:text-sm md:text-base lg:text-xl truncate max-w-[180px]">AppMedicationControl</span>
+            <span class="app-abbr-mid text-xs sm:text-sm md:text-base lg:text-xl truncate max-w-[180px]">AMC</span>
+            <span class="app-full-desktop text-xs sm:text-sm md:text-base lg:text-xl truncate max-w-[180px]">AppMedicationControl</span>
           </a>
   
           <!-- links desktop -->
@@ -142,9 +139,6 @@
                   Sair
                 </button>
               </form>
-              <!-- <span class="text-sm text-gray-500 dark:text-gray-400">
-                Olá, {{ current_user.name }}
-              </span> -->
             {% else %}
             <ul class="flex items-center space-x-4">
               <li>
