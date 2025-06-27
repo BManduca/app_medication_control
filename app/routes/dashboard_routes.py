@@ -1,7 +1,8 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import or_
+from app.utils import convert_utc_to_fuso_brasilia
 
 from app.models import Medication, Register, MedicationReminder
 
@@ -27,17 +28,19 @@ def dashboard():
     )
 
     # lembretes para o horário atual e no intervalo de 1 hora
-    now = datetime.now().time()
-    in_one_hour = (datetime.now() + timedelta(hours=1)).time()
+    now_utc = datetime.now(timezone.utc)
+    now_time_brasilia = convert_utc_to_fuso_brasilia(now_utc)
+
+    five_min_ago = (now_time_brasilia - timedelta(minutes=5)).time()
+    five_min_later = (now_time_brasilia + timedelta(minutes=5)).time()
 
     # Lembretes ativos dentro do próximo intervalor de 1h
-    if now < in_one_hour:
-        # faixa simples (ex.: 10:00 até as 11:00)
+    if five_min_ago < five_min_later:
         reminders = MedicationReminder.query.join(Medication).filter(
             Medication.user_id == current_user.id,
             MedicationReminder.active == True,
-            MedicationReminder.time >= now,
-            MedicationReminder.time <= in_one_hour
+            MedicationReminder.time >= five_min_ago,
+            MedicationReminder.time <= five_min_later
         ).all()
     else:
         # Faixa de tempo atravessa a meia-noite (ex.: 23:30 até 00:30)
@@ -45,8 +48,8 @@ def dashboard():
             Medication.user_id == current_user.id,
             MedicationReminder.active == True,
             or_(
-                MedicationReminder.time >= now,
-                MedicationReminder.time <= in_one_hour
+                MedicationReminder.time >= five_min_ago,
+                MedicationReminder.time <= five_min_later
             )
         ).all()
 
